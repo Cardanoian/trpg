@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:trpg/models/effect.dart';
+import 'package:trpg/models/item.dart';
+import 'package:trpg/models/skill.dart';
 import 'package:trpg/screens/home_screen.dart';
 
 void main() async {
   await Hive.initFlutter();
+  Hive.registerAdapter(ItemAdapter());
+  Hive.registerAdapter(SkillAdapter());
+  Hive.registerAdapter(SkillBookAdapter());
+  Hive.registerAdapter(ItemTypeAdapter());
+  Hive.registerAdapter(DetailTypeAdapter());
+  Hive.registerAdapter(GradeAdapter());
+  Hive.registerAdapter(EffectAdapter());
   Box box = await Hive.openBox("myBox");
   runApp(MyApp(
     box: box,

@@ -68,9 +68,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
               SaveData newData = SaveData(
                   heroes: heroes, enemies: [], lastPlayTime: DateTime.now());
               saveData.add(newData);
-              List<Map<String, dynamic>> mapData = [
-                for (var data in saveData) dataToBox(data)
-              ];
+              List<Map> mapData = [for (var data in saveData) dataToBox(data)];
               widget.box.put("saveData", mapData);
               print(
                   "saved length: ${widget.box.get("saveData", defaultValue: <SaveData>[]).length}");

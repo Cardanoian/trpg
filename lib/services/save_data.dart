@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:trpg/models/effect.dart';
 import 'package:trpg/models/jobs/archer.dart';
 import 'package:trpg/models/jobs/paladin.dart';
 import 'package:trpg/models/jobs/priest.dart';
@@ -7,6 +8,7 @@ import 'package:trpg/models/jobs/wizard.dart';
 
 import '../models/character.dart';
 import '../models/enemy.dart';
+import '../models/item.dart';
 import '../models/jobs/warrior.dart';
 
 class SaveData with ChangeNotifier {
@@ -21,7 +23,7 @@ class SaveData with ChangeNotifier {
   });
 }
 
-SaveData boxToData(Map<String, dynamic> data) {
+SaveData boxToData(Map data) {
   List<Character> heroes = [
     for (var charMap in data["heroes"]) makeMapToCharacter(charMap)
   ];
@@ -33,7 +35,7 @@ SaveData boxToData(Map<String, dynamic> data) {
   return saveData;
 }
 
-Map<String, dynamic> dataToBox(SaveData saveData) {
+Map dataToBox(SaveData saveData) {
   List<Map> heroes = [
     for (var hero in saveData.heroes) makeCharacterToMap(hero)
   ];
@@ -48,7 +50,7 @@ Map<String, dynamic> dataToBox(SaveData saveData) {
   return mapData;
 }
 
-Map<String, dynamic> makeCharacterToMap(Character character) => {
+Map makeCharacterToMap(Character character) => {
       "name": character.name,
       "srcName": character.srcName,
       "bStr": character.bStr,
@@ -80,7 +82,7 @@ Map<String, dynamic> makeCharacterToMap(Character character) => {
       "job": character.runtimeType.toString()
     };
 
-Character makeMapToCharacter(Map<String, dynamic> map) {
+Character makeMapToCharacter(Map map) {
   late Character character;
   switch (map["job"]) {
     case "Warrior":
@@ -125,9 +127,9 @@ Character makeMapToCharacter(Map<String, dynamic> map) {
   character.skillBook = map["skillBook"];
   character.weaponType = map["weaponType"];
   character.armorType = map["armorType"];
-  character.effects = map["effects"];
-  character.inventory = map["inventory"];
-  character.itemStats = map["itemStats"];
+  character.effects = <Effect>[for (Effect e in map["effects"]) e];
+  character.inventory = <Item>[for (Item e in map["inventory"]) e];
+  character.itemStats = <String>[for (String e in map["itemStats"]) e];
   character.weapon = map["weapon"];
   character.armor = map["armor"];
   character.accessory = map["accessory"];

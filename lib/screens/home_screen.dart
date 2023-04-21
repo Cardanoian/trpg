@@ -21,34 +21,54 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late List<dynamic> saveData;
+  late List<SaveData> gameData;
+
+  void refresh() {
+    setState(() {
+      print(widget.box.get("saveData", defaultValue: []).runtimeType);
+      saveData = widget.box.get("saveData", defaultValue: []);
+      print([for (var save in saveData) boxToData(save)].runtimeType);
+      gameData = [for (var save in saveData) boxToData(save)];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> saveData =
-        widget.box.get("saveData", defaultValue: <Map<String, dynamic>>[]);
-    List<SaveData> gameData = [for (var save in saveData) boxToData(save)];
+    refresh();
     print("length: ${gameData.length}");
-    for (var data in gameData) {
-      print(data.heroes);
-    }
+    print(gameData.isNotEmpty ? gameData[0].heroes : "Empty");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+              onPressed: () {
+                refresh();
+              },
+              icon: const Icon(Icons.refresh_rounded))
+        ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            newDataButton(context),
-            const SizedBox(height: 20),
-            saveData.isNotEmpty ? saveDataList(gameData) : const NoDataWidget(),
-          ],
+        child: Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              newDataButton(context),
+              const SizedBox(height: 20),
+              saveData.isNotEmpty
+                  ? saveDataList(gameData)
+                  : const NoDataWidget(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  ListView saveDataList(List<SaveData> saveData) {
+  ListView saveDataList(List<SaveData> gameData) {
     return ListView.separated(
+      shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           onTap: () {
@@ -56,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => ChangeNotifierProvider(
-                  create: (BuildContext context) => saveData[index],
+                  create: (BuildContext context) => gameData[index],
                   child: MainScreen(
                     title: widget.title,
                   ),
@@ -64,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           },
-          child: SaveCard(saveDatum: saveData[index]),
+          child: SaveCard(saveDatum: gameData[index]),
         );
       },
       separatorBuilder: (BuildContext context, int index) =>

@@ -1,43 +1,90 @@
 import 'dart:math';
+
+import 'package:hive/hive.dart';
+
 import 'character.dart';
 
+part 'item.g.dart';
+
+@HiveType(typeId: 201)
 enum ItemType {
+  @HiveField(0)
   weapon,
+  @HiveField(1)
   armor,
+  @HiveField(2)
   accessory,
 }
 
+@HiveType(typeId: 202, adapterName: "DetailTypeAdapter")
 enum Type {
   // Weapon
+  @HiveField(0)
   shield,
+  @HiveField(1)
   dagger,
+  @HiveField(2)
   bow,
+  @HiveField(3)
   staff,
   // Armor
+  @HiveField(4)
   plate,
+  @HiveField(5)
   leather,
+  @HiveField(6)
   cloth,
   // Accessory
   // Etc
+  @HiveField(7)
   money,
 }
 
+@HiveType(typeId: 203)
 enum Grade {
+  @HiveField(0)
   normal,
+  @HiveField(1)
   uncommon,
+  @HiveField(2)
   heroic,
+  @HiveField(3)
   legendary,
+  @HiveField(4)
   epic,
 }
 
+@HiveType(typeId: 103)
 class Item {
+  @HiveField(0)
   String name;
-  int cost, quantity;
+  @HiveField(1)
+  int cost;
+  @HiveField(2)
+  int quantity;
+  @HiveField(3)
   ItemType itemType;
+  @HiveField(4)
   Type type;
-  double atBonus, combat, dfBonus, strength, dex, intel, diceAdv;
+  @HiveField(5)
+  double atBonus;
+  @HiveField(6)
+  double combat;
+  @HiveField(7)
+  double dfBonus;
+  @HiveField(8)
+  double strength;
+  @HiveField(9)
+  double dex;
+  @HiveField(10)
+  double intel;
+  @HiveField(11)
+  double diceAdv;
+  @HiveField(12)
   Grade grade;
+  @HiveField(13)
   bool isChecked = false;
+  @HiveField(14)
   List<String> ability;
 
   Item({
@@ -57,6 +104,7 @@ class Item {
     required this.ability,
   });
 
+  @HiveField(15)
   void randomGrade({required int itemRating, required Character character}) {
     double gradeNum = Random().nextInt(101) * log(itemRating) / log(100);
     Grade grade = Grade.normal;

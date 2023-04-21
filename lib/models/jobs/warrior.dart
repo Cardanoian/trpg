@@ -101,7 +101,14 @@ class Warrior extends Character {
     for (Character target in targets) {
       target.getHp(getDamage(target, cStr + combat, actionSuccess()) * -1);
       target.getEffect(
-          Debuff(name: "메스꺼움", duration: 1, atBonus: cStr * 0.5, by: name));
+        Effect(
+          name: "메스꺼움",
+          duration: 1,
+          atBonus: cStr * 0.5,
+          by: name,
+          buff: false,
+        ),
+      );
     }
     return true;
   }
@@ -121,7 +128,14 @@ class Warrior extends Character {
     if (level < 3 || !getSrc(-20)) {
       return false;
     }
-    getEffect(Buff(name: "방패의 벽", duration: 2, dfBonus: cStr / 8, diceAdv: 1));
+    getEffect(
+      Effect(
+        name: "방패의 벽",
+        duration: 2,
+        dfBonus: cStr / 8,
+        diceAdv: 1,
+      ),
+    );
     return true;
   }
 
@@ -131,7 +145,13 @@ class Warrior extends Character {
       return false;
     }
     targets[0].getHp(getDamage(targets[0], cStr + combat, actionSuccess()) * 2);
-    getEffect(Buff(name: "강화된 방패", duration: 1, diceAdv: 1));
+    getEffect(
+      Effect(
+        name: "강화된 방패",
+        duration: 1,
+        diceAdv: 1,
+      ),
+    );
     return true;
   }
 }

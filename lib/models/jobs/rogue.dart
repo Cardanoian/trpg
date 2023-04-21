@@ -112,7 +112,12 @@ class Rogue extends Character {
     int action = actionSuccess();
     double damage = getDamage(targets[0], cDex + combat, action);
     targets[0].getHp(damage);
-    targets[0].getEffect(Debuff(name: "비열한 일격", duration: 2, dfBonus: -1));
+    targets[0].getEffect(Effect(
+      name: "비열한 일격",
+      duration: 2,
+      dfBonus: -1,
+      buff: false,
+    ));
     link += action < 3 ? 1 : 2;
     if (link > 4) {
       link = 4;

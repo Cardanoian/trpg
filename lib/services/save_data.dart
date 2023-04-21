@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:trpg/models/jobs/archer.dart';
 import 'package:trpg/models/jobs/paladin.dart';
 import 'package:trpg/models/jobs/priest.dart';
@@ -10,13 +9,9 @@ import '../models/character.dart';
 import '../models/enemy.dart';
 import '../models/jobs/warrior.dart';
 
-@HiveType(typeId: 0)
 class SaveData with ChangeNotifier {
-  @HiveField(0)
   List<Character> heroes;
-  @HiveField(1)
   List<Character> enemies;
-  @HiveField(2)
   DateTime lastPlayTime;
 
   SaveData({

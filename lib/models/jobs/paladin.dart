@@ -121,7 +121,11 @@ class Paladin extends Character {
     if (action == 4) {
       getSrc(1);
     }
-    getEffect(Buff(name: "신성한 방패", duration: 2, dfBonus: dfBonus));
+    getEffect(Effect(
+      name: "신성한 방패",
+      duration: 2,
+      dfBonus: dfBonus,
+    ));
     for (Character target in targets) {
       double damage = getDamage(target, cStr / 2 + cInt + combat, action) * 0.5;
       target.getHp(damage);

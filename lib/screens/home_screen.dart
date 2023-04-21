@@ -23,10 +23,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    List<SaveData> saveData =
-        widget.box.get("saveData", defaultValue: <SaveData>[]);
-    print("length: ${saveData.length}");
-    for (SaveData data in saveData) {
+    List<Map<String, dynamic>> saveData =
+        widget.box.get("saveData", defaultValue: <Map<String, dynamic>>[]);
+    List<SaveData> gameData = [for (var save in saveData) boxToData(save)];
+    print("length: ${gameData.length}");
+    for (var data in gameData) {
       print(data.heroes);
     }
     return Scaffold(
@@ -39,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             newDataButton(context),
             const SizedBox(height: 20),
-            saveData.isNotEmpty ? saveDataList(saveData) : const NoDataWidget(),
+            saveData.isNotEmpty ? saveDataList(gameData) : const NoDataWidget(),
           ],
         ),
       ),

@@ -87,7 +87,11 @@ class Priest extends Character {
       targets[0].getHp(spellPower);
       duration = 5;
     }
-    targets[0].getEffect(Buff(name: "소생", duration: duration, hp: spellPower));
+    targets[0].getEffect(Effect(
+      name: "소생",
+      duration: duration,
+      hp: spellPower,
+    ));
     return true;
   }
 
@@ -113,7 +117,11 @@ class Priest extends Character {
         return false;
       }
       getHp(-10);
-      targets[0].getEffect(Buff(name: "보호", duration: 3, dfBonus: cStr / 3));
+      targets[0].getEffect(Effect(
+        name: "보호",
+        duration: 3,
+        dfBonus: cStr / 3,
+      ));
     }
     if (level < 5) {
       if (!useSrc(-10)) {

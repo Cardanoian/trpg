@@ -1,78 +1,46 @@
+import 'package:hive/hive.dart';
+
+part 'effect.g.dart';
+
+@HiveType(typeId: 104)
 class Effect {
+  @HiveField(0)
   String? by;
+  @HiveField(1)
   String name;
+  @HiveField(2)
   int duration;
+  @HiveField(3)
   double strength;
-  double dex, intel, hp, atBonus, combat, dfBonus, diceAdv;
+  @HiveField(4)
+  double dex;
+  @HiveField(5)
+  double intel;
+  @HiveField(6)
+  double hp;
+  @HiveField(7)
+  double atBonus;
+  @HiveField(8)
+  double combat;
+  @HiveField(9)
+  double dfBonus;
+  @HiveField(10)
+  double diceAdv;
+  @HiveField(11)
+  bool buff;
 
-  Effect(
-      {this.by = "tmp",
-      this.name = "tmp",
-      this.duration = 0,
-      this.strength = 0,
-      this.dex = 0,
-      this.intel = 0,
-      this.hp = 0,
-      this.atBonus = 0,
-      this.combat = 0,
-      this.dfBonus = 0,
-      this.diceAdv = 0});
-}
-
-class Buff extends Effect {
-  String type = "buff";
-
-  Buff(
-      {String by = "tmp",
-      String name = "tmp",
-      int duration = 0,
-      double strength = 0,
-      double dex = 0,
-      double intel = 0,
-      double hp = 0,
-      double atBonus = 0,
-      double combat = 0,
-      double dfBonus = 0,
-      double diceAdv = 0})
-      : super(
-            by: by,
-            name: name,
-            duration: duration,
-            strength: strength,
-            dex: dex,
-            intel: intel,
-            hp: hp,
-            atBonus: atBonus,
-            combat: combat,
-            dfBonus: dfBonus,
-            diceAdv: diceAdv);
-}
-
-class Debuff extends Effect {
-  String type = "debuff";
-
-  Debuff(
-      {String by = "tmp",
-      String name = "tmp",
-      int duration = 0,
-      double strength = 0,
-      double dex = 0,
-      double intel = 0,
-      double hp = 0,
-      double atBonus = 0,
-      double combat = 0,
-      double dfBonus = 0,
-      double diceAdv = 0})
-      : super(
-            by: by,
-            name: name,
-            duration: duration,
-            strength: strength,
-            dex: dex,
-            intel: intel,
-            hp: hp,
-            atBonus: atBonus,
-            combat: combat,
-            dfBonus: dfBonus,
-            diceAdv: diceAdv);
+  Effect({
+    this.by = "tmp",
+    this.name = "tmp",
+    this.duration = 0,
+    this.strength = 0,
+    this.dex = 0,
+    this.intel = 0,
+    this.hp = 0,
+    this.atBonus = 0,
+    this.combat = 0,
+    this.dfBonus = 0,
+    this.diceAdv = 0,
+    this.buff = true,
+  });
 }

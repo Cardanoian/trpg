@@ -4,19 +4,23 @@ import 'package:trpg/widgets/character_card.dart';
 import '../models/character.dart';
 
 class HeroWidget extends StatelessWidget {
-  final List<Character> heroesList;
+  final List<Character> heroList, enemyList;
 
   const HeroWidget({
     super.key,
-    required this.heroesList,
+    required this.heroList,
+    required this.enemyList,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: heroesList.length,
-      itemBuilder: (BuildContext context, int index) =>
-          CharacterCard(character: heroesList[index]),
+      itemCount: heroList.length,
+      itemBuilder: (BuildContext context, int index) => CharacterCard(
+        character: heroList[index],
+        heroes: heroList,
+        enemies: enemyList,
+      ),
       separatorBuilder: (BuildContext context, int index) =>
           const SizedBox(height: 10),
     );

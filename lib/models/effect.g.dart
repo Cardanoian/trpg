@@ -29,13 +29,14 @@ class EffectAdapter extends TypeAdapter<Effect> {
       dfBonus: fields[9] as double,
       diceAdv: fields[10] as double,
       buff: fields[11] as bool,
+      addEffect: fields[12] as Function?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Effect obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.by)
       ..writeByte(1)
@@ -59,7 +60,9 @@ class EffectAdapter extends TypeAdapter<Effect> {
       ..writeByte(10)
       ..write(obj.diceAdv)
       ..writeByte(11)
-      ..write(obj.buff);
+      ..write(obj.buff)
+      ..writeByte(12)
+      ..write(obj.addEffect);
   }
 
   @override

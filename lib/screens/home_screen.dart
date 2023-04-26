@@ -21,23 +21,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late List<dynamic> saveData;
-  late List<SaveData> gameData;
+  late List<SaveData> saveData;
+
+  // late List<SaveData> gameData;
 
   void refresh() {
     setState(() {
-      print(widget.box.get("saveData", defaultValue: []).runtimeType);
-      saveData = widget.box.get("saveData", defaultValue: []);
-      print([for (var save in saveData) boxToData(save)].runtimeType);
-      gameData = [for (var save in saveData) boxToData(save)];
+      // print(widget.box.get("saveData", defaultValue: []).runtimeType);
+      saveData = widget.box.get("saveData", defaultValue: <SaveData>[]);
+      // print([for (var save in saveData) boxToData(save)].runtimeType);
+      // gameData = [for (var save in saveData) boxToData(save)];
     });
   }
 
   @override
   Widget build(BuildContext context) {
     refresh();
-    print("length: ${gameData.length}");
-    print(gameData.isNotEmpty ? gameData[0].heroes : "Empty");
+    print("length: ${saveData.length}");
+    print(saveData.isNotEmpty ? saveData[0].heroes : "Empty");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
               newDataButton(context),
               const SizedBox(height: 20),
               saveData.isNotEmpty
-                  ? saveDataList(gameData)
+                  ? saveDataList(saveData)
                   : const NoDataWidget(),
             ],
           ),

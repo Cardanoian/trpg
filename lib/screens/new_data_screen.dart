@@ -68,8 +68,8 @@ class _NewDataScreenState extends State<NewDataScreen> {
               SaveData newData = SaveData(
                   heroes: heroes, enemies: [], lastPlayTime: DateTime.now());
               saveData.add(newData);
-              List<Map> mapData = [for (var data in saveData) dataToBox(data)];
-              widget.box.put("saveData", mapData);
+              // List<Map> mapData = [for (var data in saveData) dataToBox(data)];
+              widget.box.put("saveData", newData);
               print(
                   "saved length: ${widget.box.get("saveData", defaultValue: <SaveData>[]).length}");
               Navigator.pop(context);
@@ -106,47 +106,47 @@ class _NewDataScreenState extends State<NewDataScreen> {
   ElevatedButton addHeroButton() {
     return ElevatedButton(
       onPressed: () {
-        if (heroes.length >= 6) return;
+        if (heroes.length > 5) return;
         switch (selectedJob) {
           case "전사":
             heroes.add(
-              Warrior(
-                name: selectedName,
+              warrior(
+                selectedName,
               ),
             );
             break;
           case "성기사":
             heroes.add(
-              Paladin(
-                name: selectedName,
+              paladin(
+                selectedName,
               ),
             );
             break;
           case "도적":
             heroes.add(
-              Rogue(
-                name: selectedName,
+              rogue(
+                selectedName,
               ),
             );
             break;
           case "궁수":
             heroes.add(
-              Archer(
-                name: selectedName,
+              archer(
+                selectedName,
               ),
             );
             break;
           case "마법사":
             heroes.add(
-              Wizard(
-                name: selectedName,
+              wizard(
+                selectedName,
               ),
             );
             break;
           case "사제":
             heroes.add(
-              Priest(
-                name: selectedName,
+              priest(
+                selectedName,
               ),
             );
             break;

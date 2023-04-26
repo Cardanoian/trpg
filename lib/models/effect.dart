@@ -28,6 +28,8 @@ class Effect {
   double diceAdv;
   @HiveField(11)
   bool buff;
+  @HiveField(12)
+  Function? addEffect;
 
   Effect({
     this.by = "tmp",
@@ -42,5 +44,6 @@ class Effect {
     this.dfBonus = 0,
     this.diceAdv = 0,
     this.buff = true,
+    this.addEffect,
   });
 }

@@ -2,86 +2,163 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:trpg/models/skill.dart';
 
 import 'effect.dart';
 import 'item.dart';
-import 'skill.dart';
 
+part 'character.g.dart';
+
+@HiveType(typeId: 102)
 class Character with ChangeNotifier {
-  String name, srcName, job;
-  double bStr,
-      bDex,
-      bInt,
-      lvS,
-      lvD,
-      lvI,
-      src,
-      maxSrc,
-      level = 1,
-      exp = 0,
-      diceAdv = 0,
-      atBonus = 0,
-      dfBonus = 0,
-      combat = 0,
-      gold = 0;
-  SkillBook skillBook;
+  @HiveField(0)
+  String name;
+  @HiveField(1)
+  String srcName;
+  @HiveField(2)
+  String job;
+  @HiveField(3)
+  double bStr;
+  @HiveField(4)
+  double bDex;
+  @HiveField(5)
+  double bInt;
+  @HiveField(6)
+  double lvS;
+  @HiveField(7)
+  double lvD;
+  @HiveField(8)
+  double lvI;
+  @HiveField(9)
+  double src;
+  @HiveField(10)
+  double maxSrc;
+  @HiveField(11)
+  double exp = 0;
+  @HiveField(12)
+  double diceAdv = 0;
+  @HiveField(13)
+  double atBonus = 0;
+  @HiveField(14)
+  double dfBonus = 0;
+  @HiveField(15)
+  double combat = 0;
+  @HiveField(16)
+  double gold = 0;
+  @HiveField(17)
+  int level = 1;
+  @HiveField(18)
+  List<Skill> skillBook;
+  @HiveField(19)
   Type weaponType;
+  @HiveField(20)
   Type armorType;
-  double cStr = 0, cDex = 0, cInt = 0, maxHp = 0, hp = 0;
+  @HiveField(21)
+  double cStr = 0;
+  @HiveField(22)
+  double cDex = 0;
+  @HiveField(23)
+  double cInt = 0;
+  @HiveField(24)
+  double maxHp = 0;
+  @HiveField(25)
+  double hp = 0;
+  @HiveField(26)
   List<Effect> effects = [];
+  @HiveField(27)
   List<Item> inventory = [];
+  @HiveField(28)
   List<String> itemStats = [];
-  Item weapon, armor, accessory;
-  bool hero, isAlive;
+  @HiveField(29)
+  Item weapon;
+  @HiveField(30)
+  Item armor;
+  @HiveField(31)
+  Item accessory;
+  @HiveField(32)
+  bool hero;
+  @HiveField(33)
+  bool isAlive;
+  @HiveField(37)
+  List skillCools = [0, 0, 0, 0];
+  @HiveField(38)
+  bool blowAvailable = true;
+  @HiveField(46)
+  int link = 0;
+  @HiveField(49)
+  Character? lastTarget;
+  @HiveField(70)
+  bool doubleDamage = false;
+  @HiveField(71)
+  String lastSource = "";
+  @HiveField(54)
+  Function levelUp;
+  @HiveField(55)
+  Function battleStart;
+  @HiveField(56)
+  Function turnStart;
+  @HiveField(57)
+  Function getDamage;
+  @HiveField(59)
+  Function getHp;
 
-  Character(
-      {this.job = "",
-      this.lvS = 0,
-      this.lvD = 0,
-      this.lvI = 0,
-      this.src = 0,
-      this.maxSrc = 0,
-      this.bStr = 0,
-      this.bDex = 0,
-      this.bInt = 0,
-      this.level = 1,
-      this.exp = 0,
-      this.diceAdv = 0,
-      this.weaponType = Type.shield,
-      this.armorType = Type.plate,
-      this.hero = false,
-      this.isAlive = true,
-      this.name = "NoName",
-      this.srcName = "마나",
-      required this.itemStats,
-      required this.weapon,
-      required this.armor,
-      required this.accessory,
-      required this.skillBook}) {
-    renewStat();
+  Character({
+    this.job = "",
+    this.lvS = 0,
+    this.lvD = 0,
+    this.lvI = 0,
+    this.src = 0,
+    this.maxSrc = 0,
+    this.bStr = 0,
+    this.bDex = 0,
+    this.bInt = 0,
+    this.level = 1,
+    this.exp = 0,
+    this.diceAdv = 0,
+    this.weaponType = Type.shield,
+    this.armorType = Type.plate,
+    this.hero = false,
+    this.isAlive = true,
+    this.name = "NoName",
+    this.srcName = "마나",
+    required this.levelUp,
+    required this.battleStart,
+    required this.turnStart,
+    required this.getDamage,
+    required this.getHp,
+    required this.itemStats,
+    required this.weapon,
+    required this.armor,
+    required this.accessory,
+    required this.skillBook,
+  }) {
+    renewStat(this);
     hp = maxHp;
   }
 
-  void getEffect(Effect effect) {
-    for (Effect myEffect in effects) {
+  @HiveField(34)
+  void getEffect(Effect effect, Character me) {
+    for (Effect myEffect in me.effects) {
       if (myEffect.name == effect.name && myEffect.by == effect.by) {
         myEffect.duration = effect.duration;
         notifyListeners();
         return;
       }
     }
-    cStr += effect.strength;
-    cDex += effect.dex;
-    cInt += effect.intel;
-    atBonus += effect.atBonus;
-    combat += effect.combat;
-    dfBonus += effect.dfBonus;
-    diceAdv += effect.diceAdv;
-    effects.add(effect);
+    me.cStr += effect.strength;
+    me.cDex += effect.dex;
+    me.cInt += effect.intel;
+    me.atBonus += effect.atBonus;
+    me.combat += effect.combat;
+    me.dfBonus += effect.dfBonus;
+    me.diceAdv += effect.diceAdv;
+    me.effects.add(effect);
     notifyListeners();
   }
 
-  void renewStat() {
+  @HiveField(35)
+  void renewStat(Character me) {
     Effect tmpEffect = Effect(
         by: 'tmp',
         name: 'tmp',
@@ -94,7 +171,7 @@ class Character with ChangeNotifier {
         combat: 0,
         dfBonus: 0,
         diceAdv: 0);
-    for (Effect effect in effects) {
+    for (Effect effect in me.effects) {
       tmpEffect.strength += effect.strength;
       tmpEffect.dex += effect.dex;
       tmpEffect.intel += effect.intel;
@@ -102,115 +179,124 @@ class Character with ChangeNotifier {
       tmpEffect.combat += effect.combat;
       tmpEffect.dfBonus += effect.dfBonus;
       tmpEffect.diceAdv += effect.diceAdv;
-    }
-    cStr = bStr +
-        weapon.strength +
-        armor.strength +
-        accessory.strength +
-        tmpEffect.strength;
-    cDex = bDex + weapon.dex + armor.dex + accessory.dex + tmpEffect.dex;
-    cInt =
-        bInt + weapon.intel + armor.intel + accessory.intel + tmpEffect.intel;
-    atBonus =
-        weapon.atBonus + armor.atBonus + accessory.atBonus + tmpEffect.atBonus;
-    combat = weapon.combat + armor.combat + accessory.combat + tmpEffect.combat;
-    dfBonus =
-        weapon.dfBonus + armor.dfBonus + accessory.dfBonus + tmpEffect.dfBonus;
-    diceAdv =
-        weapon.diceAdv + armor.diceAdv + accessory.diceAdv + tmpEffect.diceAdv;
-    maxHp = (level + bStr) * 5;
-    notifyListeners();
-  }
-
-  void getExp(int exp) {
-    double maxExp = pow(17, level).toDouble();
-    this.exp += exp;
-    while (this.exp >= maxExp) {
-      this.exp -= maxExp.toInt();
-      levelUp();
-      maxExp = pow(17, level).toDouble();
-    }
-    notifyListeners();
-  }
-
-  void levelUp() {
-    level++;
-    bStr += lvS;
-    bDex += lvD;
-    bInt += lvI;
-    renewStat();
-  }
-
-  void turnStart() {
-    for (int i = 0; i < effects.length; i++) {
-      effects[i].duration -= 1;
-      if (effects[i].duration < 0) {
-        effects.removeAt(i);
-        continue;
+      if (tmpEffect.addEffect != null) {
+        tmpEffect.addEffect!(me, tmpEffect);
       }
-      getHp(effects[i].hp);
     }
-    renewStat();
+    me.cStr = me.bStr +
+        me.weapon.strength +
+        me.armor.strength +
+        me.accessory.strength +
+        tmpEffect.strength;
+    me.cDex = me.bDex +
+        me.weapon.dex +
+        me.armor.dex +
+        me.accessory.dex +
+        tmpEffect.dex;
+    me.cInt = me.bInt +
+        me.weapon.intel +
+        me.armor.intel +
+        me.accessory.intel +
+        tmpEffect.intel;
+    me.atBonus = me.weapon.atBonus +
+        me.armor.atBonus +
+        me.accessory.atBonus +
+        tmpEffect.atBonus;
+    me.combat = me.weapon.combat +
+        me.armor.combat +
+        me.accessory.combat +
+        tmpEffect.combat;
+    me.dfBonus = me.weapon.dfBonus +
+        me.armor.dfBonus +
+        me.accessory.dfBonus +
+        tmpEffect.dfBonus;
+    me.diceAdv = me.weapon.diceAdv +
+        me.armor.diceAdv +
+        me.accessory.diceAdv +
+        tmpEffect.diceAdv;
+    me.maxHp = (me.level + me.bStr) * 5;
+    if (me.hp >= me.maxHp) {
+      me.hp = me.maxHp;
+    }
+    notifyListeners();
   }
 
-  void getHp(double hp) {
+  @HiveField(36)
+  void getExp(int exp, Character me) {
+    double maxExp = pow(10, me.level).toDouble();
+    me.exp += exp;
+    while (me.exp >= maxExp) {
+      me.exp -= maxExp.toInt();
+      me.levelUp(me);
+      maxExp = pow(10, level).toDouble();
+    }
+    notifyListeners();
+  }
+
+  @HiveField(39)
+  void defaultGetHp(double hp, Character me) {
     if (hp == 0) {
       return;
     }
-    this.hp += hp;
-    if (this.hp >= maxHp) {
-      this.hp = maxHp;
+    me.hp += hp;
+    if (me.hp >= me.maxHp) {
+      me.hp = me.maxHp;
     } else if (hp <= 0) {
-      this.hp = 0;
-      isAlive = false;
+      me.hp = 0;
+      me.isAlive = false;
     }
     notifyListeners();
   }
 
-  void getGold(double gold) {
-    this.gold += gold;
+  @HiveField(40)
+  void getGold(double gold, Character me) {
+    me.gold += gold;
     notifyListeners();
   }
 
-  void getItem(Item item) {
-    for (Item myItem in inventory) {
+  @HiveField(41)
+  void getItem(Item item, Character me) {
+    for (Item myItem in me.inventory) {
       if (item.name == myItem.name) {
         myItem.quantity += 1;
         notifyListeners();
         return;
       }
     }
-    inventory.add(item);
+    me.inventory.add(item);
     notifyListeners();
   }
 
-  void wearItem(Item item) {
+  @HiveField(42)
+  void wearItem(Item item, Character me) {
     if (item.itemType == ItemType.weapon) {
-      if (item.type == weaponType) {
-        getItem(weapon);
-        weapon = item;
+      if (item.type == me.weaponType) {
+        me.getItem(weapon, me);
+        me.weapon = item;
       }
     } else if (item.itemType == ItemType.armor) {
-      if (item.type == armorType) {
-        getItem(armor);
-        armor = item;
+      if (item.type == me.armorType) {
+        me.getItem(armor, me);
+        me.armor = item;
       }
     } else if (item.itemType == ItemType.accessory) {
-      getItem(accessory);
-      accessory = item;
+      me.getItem(accessory, me);
+      me.accessory = item;
     }
     notifyListeners();
   }
 
-  double calcWealth() {
-    double wealth = gold;
+  @HiveField(43)
+  double calcWealth(Character me) {
+    double wealth = me.gold;
 
-    for (Item item in inventory) {
+    for (Item item in me.inventory) {
       wealth += item.cost * item.quantity;
     }
     return wealth;
   }
 
+  @HiveField(44)
   int actionDice() {
     int randNum = Random().nextInt(36);
     return randNum == 35
@@ -236,8 +322,9 @@ class Character with ChangeNotifier {
                                             : 2;
   }
 
-  int actionSuccess() {
-    double dice = actionDice() + diceAdv;
+  @HiveField(45)
+  int actionSuccess(Character me) {
+    double dice = actionDice() + me.diceAdv;
     if (dice >= 11) {
       return 4;
     } else if (dice >= 8) {
@@ -249,35 +336,31 @@ class Character with ChangeNotifier {
     }
   }
 
-  double getDamage(Character target, double stat, int action) {
-    double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
-    return -1 * weapon.atBonus * stat * action / defend / 2;
+  @HiveField(47)
+  bool useSrc(int src, Character me) {
+    if (me.src + src < 0) {
+      return false;
+    }
+    me.src += src;
+    me.src = me.src >= me.maxSrc ? me.maxSrc : me.src;
+    return true;
   }
 
-  void battleStart() {
-    // Not implemented yet
+  @HiveField(48)
+  double getSpellPower(Character me) {
+    return (me.cInt + me.combat) * me.actionSuccess(me) / 2;
   }
-
-  bool skill1(List<Character> targets) => false;
-
-  bool skill2(List<Character> targets) => false;
-
-  bool skill3(List<Character> targets) => false;
-
-  bool skill4(List<Character> targets) => false;
-
-  bool blow(List<Character> targets) => false;
 
   void showTestInfo() {}
 
-  void test(List<Character> targets) {
+  void test(List<Character> targets, Character me) {
     double turns = 0;
     bool playing = true;
     double totalDamage = 0;
     while (turns <= 10 && playing) {
       double thisTurn = 0;
       while (thisTurn <= 1) {
-        targets[0].getHp(500);
+        targets[0].getHp(500, me);
         showTestInfo();
         print(
             "자원: $src / $maxSrc\n누적 데미지: $totalDamage\n사용 턴: ${turns % 1} / $turns");
@@ -290,34 +373,69 @@ class Character with ChangeNotifier {
         if (ipt == "p") {
           break;
         }
-        if (ipt == "a") {
-          blow(targets);
-          thisTurn += skillBook.skill5.turn;
-          turns += skillBook.skill5.turn;
-        }
-        if (ipt == "1") {
-          skill1(targets);
-          thisTurn += skillBook.skill1.turn;
-          turns += skillBook.skill1.turn;
-        } else if (ipt == "2") {
-          skill2(targets);
-          thisTurn += skillBook.skill2.turn;
-          turns += skillBook.skill2.turn;
-        } else if (ipt == "3") {
-          skill3(targets);
-          thisTurn += skillBook.skill3.turn;
-          turns += skillBook.skill3.turn;
-        } else if (ipt == "4") {
-          skill4(targets);
-          thisTurn += skillBook.skill4.turn;
-          turns += skillBook.skill4.turn;
+        if (ipt == "1" && skillBook[0].func != null) {
+          skillBook[0].func!(targets, me);
+          thisTurn += skillBook[0].turn;
+          turns += skillBook[0].turn;
+        } else if (ipt == "2" && skillBook[1].func != null) {
+          skillBook[1].func!(targets, me);
+          thisTurn += skillBook[1].turn;
+          turns += skillBook[1].turn;
+        } else if (ipt == "3" && skillBook[2].func != null) {
+          skillBook[2].func!(targets, me);
+          thisTurn += skillBook[2].turn;
+          turns += skillBook[2].turn;
+        } else if (ipt == "4" && skillBook[3].func != null) {
+          skillBook[3].func!(targets, me);
+          thisTurn += skillBook[3].turn;
+          turns += skillBook[3].turn;
+        } else if (ipt == "5" && skillBook[4].func != null) {
+          skillBook[4].func!(targets, me);
+          thisTurn += skillBook[4].turn;
+          turns += skillBook[4].turn;
         }
         totalDamage += (targets[0].maxHp - targets[0].hp);
       }
-      turnStart();
+      turnStart(me);
     }
     print("Total Damage: $totalDamage");
     print("Used Turns: $turns");
     print("Damage per Turn: ${totalDamage / turns}");
   }
 }
+
+void baseLevelUp(Character me) {
+  me.level++;
+  me.bStr += me.lvS;
+  me.bDex += me.lvD;
+  me.bInt += me.lvI;
+  me.renewStat(me);
+}
+
+void baseTurnStart(Character me) {
+  for (int i = 0; i < me.effects.length; i++) {
+    me.effects[i].duration -= 1;
+    if (me.effects[i].duration < 0) {
+      me.effects.removeAt(i);
+      continue;
+    }
+    me.getHp(me.effects[i].hp, me);
+  }
+  me.renewStat(me);
+}
+
+double baseGetDamage(Character target, double stat, int action, Character me) {
+  double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
+  return -1 * me.weapon.atBonus * stat * action / defend / 2;
+}
+
+bool baseBlow(List<Character> targets, double damage, Character me) {
+  targets[0].getHp(damage, targets[0]);
+  return true;
+}
+
+void baseGetHp(double hp, Character me) {
+  me.defaultGetHp(hp, me);
+}
+
+void baseBattleStart(Character me) {}

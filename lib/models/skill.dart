@@ -9,47 +9,21 @@ class Skill {
   @HiveField(1)
   double turn;
 
+  @HiveField(2)
+  Function? func;
+
+  @HiveField(3)
   Skill({
-    this.name = "No Skill",
+    this.name = "",
     this.turn = 1,
+    this.func,
   });
 
-  @HiveField(2)
+  @HiveField(3)
   @override
   String toString() => name;
 }
 
-@HiveType(typeId: 102)
-class SkillBook {
-  @HiveField(0)
-  Skill skill1;
-  @HiveField(1)
-  Skill skill2;
-  @HiveField(2)
-  Skill skill3;
-  @HiveField(3)
-  Skill skill4;
-  @HiveField(4)
-  Skill skill5;
+bool defaultSkill(List targets) => false;
 
-  SkillBook(
-    this.skill1,
-    this.skill2,
-    this.skill3,
-    this.skill4,
-    this.skill5,
-  );
-
-  @HiveField(5)
-  @override
-  String toString() =>
-      '1. ${skill1.name} 2. ${skill2.name} 3. ${skill3.name} 4. ${skill4.name} a. 평타';
-}
-
-SkillBook defaultSkillBook = SkillBook(
-  Skill(),
-  Skill(),
-  Skill(),
-  Skill(),
-  Skill(),
-);
+List<Skill> defaultSkillBook = [Skill(), Skill(), Skill(), Skill(), Skill()];

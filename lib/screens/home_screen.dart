@@ -21,24 +21,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late List<SaveData> saveData;
-
-  // late List<SaveData> gameData;
+  late int index;
+  late List<SaveData?> saveDataList;
 
   void refresh() {
     setState(() {
-      // print(widget.box.get("saveData", defaultValue: []).runtimeType);
-      saveData = widget.box.get("saveData", defaultValue: <SaveData>[]);
-      // print([for (var save in saveData) boxToData(save)].runtimeType);
-      // gameData = [for (var save in saveData) boxToData(save)];
+      saveDataList = [];
+      int i = 0;
+      for (int i = 0; i < 5; i++) {
+        SaveData? data = widget.box.get("$i");
+        saveDataList.add(data);
+      }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     refresh();
-    print("length: ${saveData.length}");
-    print(saveData.isNotEmpty ? saveData[0].heroes : "Empty");
+    print(
+        "length: ${saveDataList.map((element) => element != null ? 1 : 0).reduce((value, element) => value + element)}");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -51,71 +58,100 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Center(
-        child: Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              newDataButton(context),
-              const SizedBox(height: 20),
-              saveData.isNotEmpty
-                  ? saveDataList(saveData)
-                  : const NoDataWidget(),
-            ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "데이터 불러오기",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                saveDataListView(saveDataList),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  ListView saveDataList(List<SaveData> gameData) {
+  ListView saveDataListView(List<SaveData?> gameData) {
     return ListView.separated(
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChangeNotifierProvider(
-                  create: (BuildContext context) => gameData[index],
-                  child: MainScreen(
-                    title: widget.title,
+            if (gameData[index] != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChangeNotifierProvider(
+                    create: (BuildContext context) => gameData[index],
+                    child: MainScreen(
+                      title: widget.title,
+                      box: widget.box,
+                      gameData: gameData[index]!,
+                    ),
                   ),
                 ),
-              ),
-            );
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewDataScreen(
+                    box: widget.box,
+                    title: widget.title,
+                    index: index,
+                  ),
+                ),
+              );
+            }
           },
-          child: SaveCard(saveDatum: gameData[index]),
+          child: gameData[index] == null
+              ? const NoDataWidget()
+              : SaveCard(
+                  box: widget.box,
+                  index: index,
+                  saveDatum: gameData[index]!,
+                ),
         );
       },
       separatorBuilder: (BuildContext context, int index) =>
           const SizedBox(height: 10),
-      itemCount: saveData.length,
+      itemCount: 5,
     );
   }
 
-  ElevatedButton newDataButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => NewDataScreen(
-              box: widget.box,
-              title: widget.title,
-            ),
-          ),
-        );
-      },
-      child: const Text(
-        "새 데이터",
-        style: TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+// ElevatedButton newDataButton(BuildContext context) {
+//   return ElevatedButton(
+//     onPressed: () {
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//           builder: (context) => NewDataScreen(
+//             box: widget.box,
+//             title: widget.title,
+//           ),
+//         ),
+//       );
+//     },
+//     child: const Text(
+//       "새 데이터",
+//       style: TextStyle(
+//         fontSize: 30,
+//         fontWeight: FontWeight.w600,
+//       ),
+//     ),
+//   );
+// }
 }
 
 class NoDataWidget extends StatelessWidget {
@@ -125,16 +161,20 @@ class NoDataWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(width: 1, color: Colors.blueAccent),
-      ),
-      child: const Text(
-        "데이터가 없습니다.",
-        style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(width: 1, color: Colors.blueAccent),
+        ),
+        child: const Text(
+          "데이터가 없습니다.",
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }

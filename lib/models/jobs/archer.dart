@@ -1,15 +1,25 @@
+import 'package:trpg/models/job_skills.dart';
+import 'package:trpg/models/magics.dart';
+
 import '../character.dart';
 import '../item.dart';
 import '../skill.dart';
 
 Character archer(String name) => Character(
+      bStr: 3,
+      bDex: 11,
+      bInt: 4,
+      lvS: 1,
+      lvD: 3,
       name: name,
       job: "궁수",
-      levelUp: baseLevelUp,
-      battleStart: archerBattleStart,
-      turnStart: archerTurnStart,
-      getDamage: archerGetDamage,
-      getHp: baseGetHp,
+      srcName: "기력",
+      maxSrc: 100,
+      levelUp: Character.baseLevelUp,
+      battleStart: JobSkills.archerBattleStart,
+      turnStart: JobSkills.archerTurnStart,
+      getDamage: JobSkills.archerGetDamage,
+      getHp: Character.baseGetHp,
       itemStats: [
         "atBonus",
         "combat",
@@ -24,97 +34,13 @@ Character archer(String name) => Character(
       weaponType: Type.bow,
       armorType: Type.leather,
       skillBook: [
-        Skill(name: "신비한 사격", turn: 0.5, func: arcaneShot),
-        Skill(name: "다발 사격", turn: 0.5, func: volley),
-        Skill(name: "최후의 사격", turn: 0.5, func: killShot),
+        Skill(name: "신비한 사격", turn: 0.5, func: Magics.arcaneShot),
+        Skill(name: "다발 사격", turn: 0.5, func: Magics.volley),
+        Skill(name: "최후의 사격", turn: 0.5, func: Magics.killShot),
         Skill(),
-        Skill(name: "평타", turn: 0.5, func: archerBlow),
+        Skill(name: "평타", turn: 0.5, func: JobSkills.archerBlow),
       ],
     );
-
-void archerBattleStart(Character me) {
-  me.lastTarget = null;
-  me.src = me.maxSrc;
-}
-
-double archerGetDamage(
-    Character target, double stat, int action, Character me) {
-  double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
-  double damage = me.weapon.atBonus * stat * action / defend / 2;
-  if (me.lastTarget != null) {
-    if (me.lastTarget == target) {
-      damage *= 2;
-      me.useSrc(10, me);
-    }
-  }
-  me.lastTarget = target;
-  return damage;
-}
-
-void archerTurnStart(Character me) {
-  me.skillCools[2] = 0;
-  me.useSrc(me.cDex.toInt(), me);
-  me.blowAvailable = true;
-  baseTurnStart(me);
-}
-
-bool archerBlow(List<Character> targets, Character me) {
-  if (me.blowAvailable == false) {
-    return false;
-  }
-  targets[0].getHp(
-      me.getDamage(
-            targets[0],
-            me.cDex + me.combat,
-            me.actionSuccess(me),
-            me,
-          ) *
-          2,
-      me);
-  me.blowAvailable = false;
-  return true;
-}
-
-bool arcaneShot(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  targets[0].getHp(
-      me.getDamage(
-            targets[0],
-            me.cDex + me.combat,
-            me.actionSuccess(me),
-            me,
-          ) *
-          3,
-      me);
-  return true;
-}
-
-bool volley(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  for (var target in targets) {
-    target.getHp(
-        me.getDamage(target, me.cDex + me.combat, me.actionSuccess(me)) * 1,
-        me);
-  }
-  return true;
-}
-
-bool killShot(List<Character> targets, Character me) {
-  if (me.skillCools[2] > 0 || targets[0].hp / targets[0].maxHp >= 0.3) {
-    return false;
-  }
-  me.useSrc(20, me);
-  targets[0].getHp(
-      me.getDamage(targets[0], me.cDex + me.combat, me.actionSuccess(me), me) *
-          3,
-      me);
-  me.skillCools[2] = 1;
-  return true;
-}
 
 // class Archer extends Character {
 //   Character? lastTarget;

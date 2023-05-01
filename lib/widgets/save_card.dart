@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../services/save_data.dart';
 
 class SaveCard extends StatelessWidget {
+  final Box box;
   final SaveData saveDatum;
+  final int index;
 
   const SaveCard({
     Key? key,
     required this.saveDatum,
+    required this.index,
+    required this.box,
   }) : super(key: key);
 
   Text characterStatusText(int index) {
@@ -39,7 +44,9 @@ class SaveCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                box.put("$index", null);
+              },
               icon: const Icon(Icons.delete_forever_rounded),
             ),
             Column(

@@ -19,6 +19,7 @@ class EffectAdapter extends TypeAdapter<Effect> {
     return Effect(
       by: fields[0] as String?,
       name: fields[1] as String,
+      barrier: fields[13] as double,
       duration: fields[2] as int,
       strength: fields[3] as double,
       dex: fields[4] as double,
@@ -36,7 +37,7 @@ class EffectAdapter extends TypeAdapter<Effect> {
   @override
   void write(BinaryWriter writer, Effect obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.by)
       ..writeByte(1)
@@ -62,7 +63,9 @@ class EffectAdapter extends TypeAdapter<Effect> {
       ..writeByte(11)
       ..write(obj.buff)
       ..writeByte(12)
-      ..write(obj.addEffect);
+      ..write(obj.addEffect)
+      ..writeByte(13)
+      ..write(obj.barrier);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:trpg/services/save_data.dart';
 
@@ -9,10 +10,14 @@ import '../widgets/hero_widget.dart';
 
 class MainScreen extends StatefulWidget {
   final String title;
+  final SaveData gameData;
+  final Box box;
 
   const MainScreen({
     super.key,
     this.title = "TRPG",
+    required this.gameData,
+    required this.box,
   });
 
   @override
@@ -20,17 +25,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with ChangeNotifier {
-  List<Character> targets = [];
-
-  void clearTargets() {
-    targets = [];
-    notifyListeners();
-  }
+  List<Character> turn = [];
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (BuildContext context) => Targets(),
+      create: (BuildContext context) => Targets(items: []),
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),

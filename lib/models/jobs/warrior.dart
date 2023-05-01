@@ -1,16 +1,23 @@
+import 'package:trpg/models/job_skills.dart';
+import 'package:trpg/models/magics.dart';
+
 import '../character.dart';
-import '../effect.dart';
 import '../item.dart';
 import '../skill.dart';
 
 Character warrior(String name) => Character(
       name: name,
       job: "전사",
-      levelUp: baseLevelUp,
-      battleStart: warriorBattleStart,
-      turnStart: warriorTurnStart,
-      getDamage: baseGetDamage,
-      getHp: warriorGetHp,
+      bStr: 12,
+      bDex: 5,
+      bInt: 1,
+      lvS: 3,
+      lvD: 1,
+      levelUp: Character.baseLevelUp,
+      battleStart: JobSkills.warriorBattleStart,
+      turnStart: JobSkills.warriorTurnStart,
+      getDamage: Character.baseGetDamage,
+      getHp: JobSkills.warriorGetHp,
       weapon: baseShield,
       armor: basePlate,
       accessory: baseAccessory,
@@ -24,102 +31,15 @@ Character warrior(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "천둥벼락", turn: 0.5, func: thunderClap),
-        Skill(name: "돌진", turn: 0.5, func: charge),
-        Skill(name: "방패의 벽", turn: 0.5, func: shieldWall),
-        Skill(name: "방패 밀쳐내기", turn: 0.5, func: shieldSlam),
-        Skill(name: "평타", turn: 0.5, func: baseBlow),
+        Skill(name: "천둥벼락", turn: 0.5, func: Magics.thunderClap),
+        Skill(name: "돌진", turn: 0.5, func: Magics.charge),
+        Skill(name: "방패의 벽", turn: 0.5, func: Magics.shieldWall),
+        Skill(name: "방패 밀쳐내기", turn: 0.5, func: Magics.shieldSlam),
+        Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
       ],
     );
 
-void warriorBattleStart(Character me) {
-  me.src = 0;
-  me.skillCools[0] = 0;
-  me.skillCools[1] = 0;
-}
-
-void warriorTurnStart(Character me) {
-  me.skillCools[0] -= me.skillCools[0] > 0 ? 1 : 0;
-  me.skillCools[1] -= me.skillCools[1] > 0 ? 1 : 0;
-  baseTurnStart(me);
-}
-
-void warriorGetHp(double hp, Character me) {
-  if (hp > 0) {
-    me.useSrc(5, me);
-  }
-  me.defaultGetHp(hp, me);
-}
-
 // Skills
-
-bool thunderClap(List<Character> targets, Character me) {
-  if (me.skillCools[0] > 0) {
-    return false;
-  }
-  me.skillCools[0] = 2;
-  for (Character target in targets) {
-    target.getHp(
-        me.getDamage(target, me.cStr + me.combat, me.actionSuccess(me), me) *
-            -1,
-        target);
-    target.getEffect(
-      Effect(
-        name: "메스꺼움",
-        duration: 1,
-        atBonus: me.cStr * 0.5,
-        by: me.name,
-        buff: false,
-      ),
-      target,
-    );
-  }
-  return true;
-}
-
-bool charge(List<Character> targets, Character me) {
-  if (me.skillCools[1] > 0) {
-    return false;
-  }
-  me.useSrc(20, me);
-  me.skillCools[1] = 3;
-  return true;
-}
-
-bool shieldWall(List<Character> targets, Character me) {
-  if (!me.useSrc(-20, me)) {
-    return false;
-  }
-  me.getEffect(
-    Effect(
-      name: "방패의 벽",
-      duration: 2,
-      dfBonus: me.cStr / 8,
-      diceAdv: 1,
-    ),
-    me,
-  );
-  return true;
-}
-
-bool shieldSlam(List<Character> targets, Character me) {
-  if (!me.useSrc(-20, me)) {
-    return false;
-  }
-  targets[0].getHp(
-      me.getDamage(targets[0], me.cStr + me.combat, me.actionSuccess(me), me) *
-          2,
-      targets[0]);
-  me.getEffect(
-    Effect(
-      name: "강화된 방패",
-      duration: 1,
-      diceAdv: 1,
-    ),
-    me,
-  );
-  return true;
-}
 
 // class Warrior extends Character {
 //   int clapCool = 0;

@@ -1,11 +1,65 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 
 import '../models/character.dart';
 
+part 'save_data.g.dart';
+
+@HiveType(typeId: 105)
 class SaveData with ChangeNotifier {
+  @HiveField(0)
   List<Character> heroes;
+  @HiveField(1)
   List<Character> enemies;
+  @HiveField(2)
   DateTime lastPlayTime;
+
+  @HiveField(100)
+  void addHero(Character hero) {
+    heroes.add(hero);
+    notifyListeners();
+  }
+
+  @HiveField(101)
+  void removeHero(Character hero) {
+    heroes.remove(hero);
+    notifyListeners();
+  }
+
+  @HiveField(102)
+  void clearHero() {
+    heroes = <Character>[];
+    notifyListeners();
+  }
+
+  @HiveField(110)
+  void addEnemy(Character enemy) {
+    enemies.add(enemy);
+    notifyListeners();
+  }
+
+  @HiveField(111)
+  void removeEnemy(Character enemy) {
+    enemies.remove(enemy);
+    notifyListeners();
+  }
+
+  @HiveField(112)
+  void clearEnemy() {
+    enemies = <Character>[];
+    notifyListeners();
+  }
+
+  @HiveField(120)
+  void resetPlayTime() {
+    lastPlayTime = DateTime.now();
+    notifyListeners();
+  }
+
+  @HiveField(121)
+  void refreshData() {
+    notifyListeners();
+  }
 
   SaveData({
     required this.heroes,

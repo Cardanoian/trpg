@@ -1,13 +1,25 @@
+import 'package:trpg/models/job_skills.dart';
+import 'package:trpg/models/magics.dart';
+
 import '../character.dart';
 import '../item.dart';
 import '../skill.dart';
 
 Character wizard(String name) => Character(
-      levelUp: wizardLevelUp,
-      battleStart: wizardBattleStart,
-      turnStart: baseTurnStart,
-      getDamage: wizardGetDamage,
-      getHp: baseGetHp,
+      name: name,
+      job: "마법사",
+      bStr: 3,
+      bDex: 2,
+      bInt: 13,
+      lvS: 1,
+      lvI: 3,
+      levelUp: JobSkills.wizardLevelUp,
+      battleStart: JobSkills.wizardBattleStart,
+      turnStart: Character.baseTurnStart,
+      getDamage: JobSkills.wizardGetDamage,
+      getHp: Character.baseGetHp,
+      weaponType: Type.staff,
+      armorType: Type.cloth,
       weapon: baseStaff,
       armor: baseCloth,
       accessory: baseAccessory,
@@ -19,77 +31,14 @@ Character wizard(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "비전 탄막", turn: 0.5, func: arcaneBarrage),
-        Skill(name: "연쇄 번개", turn: 1, func: chainLightning),
-        Skill(name: "화염 기둥", turn: 1, func: flameStrike),
-        Skill(name: "비전 작렬", turn: 0.5, func: arcaneBlast),
-        Skill(),
+        Skill(name: "비전 탄막", turn: 0.5, func: Magics.arcaneBarrage),
+        Skill(name: "화염구", turn: 1, func: Magics.fireBall),
+        Skill(name: "화염 기둥", turn: 1, func: Magics.flameStrike),
+        Skill(name: "비전 작렬", turn: 0.5, func: Magics.arcaneBlast),
+        Skill(name: "비전 폭발", turn: 0.5, func: Magics.arcaneNova),
       ],
     );
 
-void wizardLevelUp(Character me) {
-  me.maxSrc = me.level * 10 + me.cInt * 5;
-  baseLevelUp(me);
-}
-
-double wizardGetDamage(Character target, String source, Character me) {
-  double damage = -1 * (me.cInt + me.combat) * me.actionSuccess(me) / 2;
-  if (me.doubleDamage) {
-    damage *= 2;
-    me.doubleDamage = false;
-  }
-  if (me.lastSource != "" && me.lastSource != source) {
-    damage *= 2;
-  }
-  me.lastSource = source;
-  return damage;
-}
-
-@override
-void wizardBattleStart(Character me) {
-  me.doubleDamage = false;
-  me.lastSource = "";
-  me.renewStat(me);
-}
-
-@override
-bool arcaneBarrage(List<Character> targets, Character me) {
-  me.useSrc(20, me);
-  targets[0].getHp(me.getDamage(targets[0], "비전", me), targets[0]);
-  return true;
-}
-
-@override
-bool chainLightning(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  for (Character target in targets) {
-    target.getHp(me.getDamage(target, "전기", me), target);
-  }
-  return true;
-}
-
-@override
-bool flameStrike(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  for (Character target in targets) {
-    target.getHp(me.getDamage(target, "화염", me) * 0.5, target);
-  }
-  return true;
-}
-
-@override
-bool arcaneBlast(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  targets[0].getHp(me.getDamage(targets[0], "비전", me), targets[0]);
-  me.doubleDamage = true;
-  return true;
-}
 //
 // class Wizard extends Character {
 //   bool doubleDamage = false;

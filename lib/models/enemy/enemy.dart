@@ -19,11 +19,11 @@ Character enemy({
       level: level,
       name: name,
       job: job,
-      levelUp: baseLevelUp,
-      battleStart: baseBattleStart,
-      turnStart: baseTurnStart,
-      getDamage: baseGetDamage,
-      getHp: baseGetHp,
+      levelUp: Character.baseLevelUp,
+      battleStart: Character.baseBattleStart,
+      turnStart: Character.baseTurnStart,
+      getDamage: Character.baseGetDamage,
+      getHp: Character.baseGetHp,
       itemStats: [],
       weapon: baseDagger,
       armor: baseLeather,
@@ -71,6 +71,18 @@ bool breakingArmor(List<Character> targets, Character me) {
     targets[0],
   );
   return true;
+}
+
+void enemyGetHp(double hp, Character me, Character opponent) {
+  me.getHp(hp, me);
+  if (hp < 0 && me.hp > 0) {
+    double agg = opponent.job == "전사" || opponent.job == "성기사" ? hp * 5 : hp;
+    if (me.aggro.keys.contains(opponent)) {
+      me.aggro[opponent] = me.aggro[opponent]! + agg;
+    } else {
+      me.aggro[opponent] = agg;
+    }
+  }
 }
 // class Goblin extends Character {
 //   Goblin({

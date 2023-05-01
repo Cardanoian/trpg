@@ -1,16 +1,23 @@
+import 'package:trpg/models/job_skills.dart';
+import 'package:trpg/models/magics.dart';
+
 import '../character.dart';
-import '../effect.dart';
 import '../item.dart';
 import '../skill.dart';
 
 Character paladin(String name) => Character(
+      bStr: 10,
+      bDex: 2,
+      bInt: 6,
+      lvS: 2,
+      lvI: 2,
       name: name,
       job: "성기사",
-      levelUp: baseLevelUp,
-      battleStart: paladinBattleStart,
-      getDamage: baseGetDamage,
-      getHp: baseGetHp,
-      turnStart: paladinTurnStart,
+      levelUp: Character.baseLevelUp,
+      battleStart: JobSkills.paladinBattleStart,
+      getDamage: Character.baseGetDamage,
+      getHp: Character.baseGetHp,
+      turnStart: JobSkills.paladinTurnStart,
       weapon: baseShield,
       armor: basePlate,
       accessory: baseAccessory,
@@ -25,30 +32,16 @@ Character paladin(String name) => Character(
         "diceAdv"
       ],
       skillBook: [
-        Skill(name: "심판", turn: 0.5, func: judgement),
-        Skill(name: "정의의 방패", turn: 0.5, func: shieldOfRighteous),
-        Skill(name: "응징의 방패", turn: 0.5, func: avengersShield),
-        Skill(name: "빛의 가호", turn: 0.5, func: flashOfLight),
-        Skill(name: "평타", turn: 0.5, func: baseBlow),
+        Skill(name: "심판", turn: 0.5, func: Magics.judgement),
+        Skill(name: "정의의 방패", turn: 0.5, func: Magics.shieldOfRighteous),
+        Skill(name: "응징의 방패", turn: 0.5, func: Magics.avengersShield),
+        Skill(name: "빛의 가호", turn: 0.5, func: Magics.flashOfLight),
+        Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
       ],
     );
 
-void paladinBattleStart(Character me) {
-  me.skillCools[0] = 0;
-  me.skillCools[2] = 0;
-  me.skillCools[3] = 0;
-  me.src = 0;
-}
-
-void paladinTurnStart(Character me) {
-  baseTurnStart(me);
-  for (int i = 0; i < me.skillCools.length; i++) {
-    if (me.skillCools[i] > 0) me.skillCools[i]--;
-  }
-}
-
 bool blow(List<Character> targets, Character me) {
-  if (me.blowAvailable == false) {
+  if (me.blowAvailable < 1) {
     return false;
   }
   int action = me.actionSuccess(me);
@@ -57,89 +50,11 @@ bool blow(List<Character> targets, Character me) {
               targets[0], me.cStr / 2.0 + me.cInt + me.combat, action, me) *
           -1,
       me);
-  me.blowAvailable = false;
+  me.blowAvailable -= 1;
   return true;
 }
 
 // Skills
-
-bool judgement(List<Character> targets, Character me) {
-  if (me.skillCools[0] != 0) {
-    return false;
-  }
-  me.skillCools[0] = 1;
-  int action = me.actionSuccess(me);
-  if (action == 4) {
-    me.skillCools[3] -= me.skillCools[3] != 0 ? 1 : 0;
-  }
-  double damage =
-      me.getDamage(targets[0], me.cStr / 2.0 + me.cInt + me.combat, action, me);
-  targets[0].getHp(damage, targets[0]);
-  me.getHp(damage * 0.5, me);
-  me.useSrc(action == 4 ? 2 : 1, me);
-  return true;
-}
-
-bool shieldOfRighteous(List<Character> targets, Character me) {
-  if (me.src < 3) {
-    return false;
-  }
-  int action = me.actionSuccess(me);
-  me.useSrc(-3, me);
-  if (action == 4) {
-    me.useSrc(1, me);
-  }
-  me.getEffect(
-      Effect(
-        name: "신성한 방패",
-        duration: 2,
-        dfBonus: me.dfBonus,
-      ),
-      me);
-  for (Character target in targets) {
-    double damage =
-        me.getDamage(target, me.cStr / 2 + me.cInt + me.combat, action, me) *
-            0.5;
-    target.getHp(damage, target);
-  }
-  return true;
-}
-
-bool avengersShield(List<Character> targets, Character me) {
-  if (me.skillCools[2] != 0) {
-    return false;
-  }
-  me.skillCools[2] = 2;
-  int action = me.actionSuccess(me);
-  if (action == 4) {
-    me.skillCools[3] -= me.skillCools[3] != 0 ? 1 : 0;
-  }
-  me.useSrc(action == 4 ? 3 : 2, me);
-  for (var target in targets) {
-    double damage =
-        me.getDamage(target, me.cStr / 2 + me.cInt + me.combat, action, me);
-    target.getHp(damage, target);
-  }
-  return true;
-}
-
-bool flashOfLight(List<Character> targets, Character me) {
-  if (me.skillCools[3] != 0) {
-    return false;
-  }
-  double damage = me.getDamage(
-    targets[0],
-    me.cStr / 2.0 + me.cInt + me.combat,
-    me.actionSuccess(me),
-    me,
-  );
-  me.getHp(damage, me);
-  me.useSrc(2, me);
-  me.skillCools[2] = 0;
-  me.skillCools[0] = 0;
-  me.skillCools[3] = 5;
-  return true;
-}
 
 // class Paladin extends Character {
 //   int judCool = 0;

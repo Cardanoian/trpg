@@ -57,8 +57,9 @@ class _CharacterCardState extends State<CharacterCard> {
                   ],
                 ),
                 Text("체력: ${widget.character.hp} / ${widget.character.maxHp}"),
-                Text(
-                    "${widget.character.srcName}: ${widget.character.src}} / 100"),
+                Text(widget.heroes.contains(widget.character)
+                    ? "${widget.character.srcName}: ${widget.character.src}} / 100"
+                    : ""),
               ],
             ),
             Column(
@@ -82,10 +83,25 @@ class _CharacterCardState extends State<CharacterCard> {
     );
   }
 
+  Map<String, dynamic> findTopAggro(Character character) {
+    String name = "";
+    double aggro = 0;
+    for (Character char in character.aggro.keys) {
+      if (character.aggro[char]! > aggro) {
+        aggro = character.aggro[char]!;
+        name = char.name;
+      }
+    }
+    return {"name": name, "aggro": aggro};
+  }
+
   ElevatedButton skillBtn(Skill skill, List<Character> targets, int index) {
     return ElevatedButton(
         onPressed: () {
-          if (widget.character.job == "사제" && index == 2) {
+          if ((widget.character.job == "전사" || widget.character.job == "성기사") &&
+              index == 6) {
+            provocation(widget.character, targets[0]);
+          } else if (widget.character.job == "사제" && index == 2) {
             widget.character.skillBook[index].func!(
               targets,
               widget.character,
@@ -102,6 +118,12 @@ class _CharacterCardState extends State<CharacterCard> {
         style: ElevatedButton.styleFrom(
           fixedSize: const Size(50, 10),
         ),
-        child: Text(skill.name!));
+        child: Text(index == 6 ? "도발" : skill.name));
+  }
+
+  void provocation(Character me, Character target) {
+    double aggro = findTopAggro(target)["aggro"];
+    target.aggro[me] = aggro + 10;
+    target.renewStat(target);
   }
 }

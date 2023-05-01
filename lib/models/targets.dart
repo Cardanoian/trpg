@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Targets extends ChangeNotifier {
-  List items = [];
+  List items;
+
+  Targets({required this.items});
 
   void add(item) {
     items.add(item);

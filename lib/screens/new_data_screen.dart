@@ -12,11 +12,13 @@ import 'package:trpg/services/save_data.dart';
 class NewDataScreen extends StatefulWidget {
   final Box box;
   final String title;
+  final int index;
 
   const NewDataScreen({
     Key? key,
     this.title = "TRPG",
     required this.box,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -37,7 +39,13 @@ class _NewDataScreenState extends State<NewDataScreen> {
 
   String selectedName = "";
   String selectedJob = "선택";
-  List<Character> heroes = [];
+
+  // List<Character> heroes = [];
+  SaveData newData = SaveData(
+    heroes: <Character>[],
+    enemies: <Character>[],
+    lastPlayTime: DateTime.now(),
+  );
 
   @override
   void initState() {
@@ -55,49 +63,53 @@ class _NewDataScreenState extends State<NewDataScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<SaveData> saveData =
-        widget.box.get("saveData", defaultValue: <SaveData>[]);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
           IconButton(
             tooltip: "저장",
-            onPressed: () {
-              if (heroes.isEmpty) return;
-              SaveData newData = SaveData(
-                  heroes: heroes, enemies: [], lastPlayTime: DateTime.now());
-              saveData.add(newData);
-              // List<Map> mapData = [for (var data in saveData) dataToBox(data)];
-              widget.box.put("saveData", newData);
-              print(
-                  "saved length: ${widget.box.get("saveData", defaultValue: <SaveData>[]).length}");
-              Navigator.pop(context);
+            onPressed: () async {
+              if (newData.heroes.isEmpty) return;
+              print([
+                for (var hero in newData.heroes)
+                  [
+                    hero.name,
+                    hero.job,
+                  ]
+              ]);
+              print([for (var hero in newData.heroes) hero.runtimeType]);
+              newData.resetPlayTime();
+              await widget.box.put("${widget.index}", newData);
             },
             icon: const Icon(Icons.save_rounded),
           ),
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.exit_to_app_rounded),
+          ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  NameInputWidget(nameController: nameController),
-                  const SizedBox(height: 10),
-                  jobSelectingWidget(),
-                  const SizedBox(height: 10),
-                  addHeroButton(),
-                ],
-              ),
-              Expanded(child: HeroesListWidget(heroes: heroes)),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                NameInputWidget(nameController: nameController),
+                const SizedBox(height: 10),
+                jobSelectingWidget(),
+                const SizedBox(height: 10),
+                addHeroButton(),
+              ],
+            ),
+            Expanded(child: HeroesListWidget(heroes: newData.heroes)),
+          ],
         ),
       ),
     );
@@ -106,45 +118,45 @@ class _NewDataScreenState extends State<NewDataScreen> {
   ElevatedButton addHeroButton() {
     return ElevatedButton(
       onPressed: () {
-        if (heroes.length > 5) return;
+        if (newData.heroes.length > 5) return;
         switch (selectedJob) {
           case "전사":
-            heroes.add(
+            newData.addHero(
               warrior(
                 selectedName,
               ),
             );
             break;
           case "성기사":
-            heroes.add(
+            newData.addHero(
               paladin(
                 selectedName,
               ),
             );
             break;
           case "도적":
-            heroes.add(
+            newData.addHero(
               rogue(
                 selectedName,
               ),
             );
             break;
           case "궁수":
-            heroes.add(
+            newData.addHero(
               archer(
                 selectedName,
               ),
             );
             break;
           case "마법사":
-            heroes.add(
+            newData.addHero(
               wizard(
                 selectedName,
               ),
             );
             break;
           case "사제":
-            heroes.add(
+            newData.addHero(
               priest(
                 selectedName,
               ),

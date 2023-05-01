@@ -1,16 +1,25 @@
-import 'dart:math';
+import 'package:trpg/models/job_skills.dart';
 
 import '../character.dart';
-import '../effect.dart';
 import '../item.dart';
+import '../magics.dart';
 import '../skill.dart';
 
 Character rogue(String name) => Character(
-      levelUp: rogueLevelUp,
-      battleStart: battleStart,
-      turnStart: turnStart,
-      getDamage: baseGetDamage,
-      getHp: baseGetHp,
+      name: name,
+      job: "도적",
+      srcName: "기력",
+      maxSrc: 100,
+      bStr: 5,
+      bDex: 11,
+      bInt: 2,
+      lvS: 1,
+      lvD: 3,
+      levelUp: JobSkills.rogueLevelUp,
+      battleStart: JobSkills.battleStart,
+      turnStart: JobSkills.turnStart,
+      getDamage: Character.baseGetDamage,
+      getHp: Character.baseGetHp,
       weapon: baseDagger,
       armor: baseLeather,
       accessory: baseAccessory,
@@ -25,92 +34,13 @@ Character rogue(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "비열한 일격", turn: 0.5, func: sinisterStrike),
-        Skill(name: "절개", turn: 0.5, func: eviscerate),
-        Skill(name: "칼날부채", turn: 0.5, func: fanOfKnife),
+        Skill(name: "비열한 일격", turn: 0.5, func: Magics.sinisterStrike),
+        Skill(name: "절개", turn: 0.5, func: Magics.eviscerate),
+        Skill(name: "칼날부채", turn: 0.5, func: Magics.fanOfKnife),
         Skill(),
-        Skill(name: "평타", turn: 0.5, func: rogueBlow),
+        Skill(name: "평타", turn: 0.5, func: JobSkills.rogueBlow),
       ],
     );
-
-void rogueLevelUp(Character me) {
-  if (me.level >= 5) {
-    me.maxSrc = 120;
-    me.src = me.maxSrc;
-  }
-  baseLevelUp(me);
-}
-
-void battleStart(Character me) {
-  me.src = me.maxSrc;
-  me.link = 0;
-}
-
-void turnStart(Character me) {
-  me.useSrc(me.cDex.toInt(), me);
-  baseTurnStart(me);
-}
-
-bool rogueBlow(List<Character> targets, Character me) {
-  int action = me.actionSuccess(me);
-  double damage = me.getDamage(targets[0], me.cDex + me.combat, action) * -1;
-  baseBlow(targets, damage, me);
-  me.useSrc(action == 4 ? 20 : 10, me);
-  return true;
-}
-
-@override
-bool sinisterStrike(List<Character> targets, Character me) {
-  if (!me.useSrc(-40, me)) {
-    return false;
-  }
-  int action = me.actionSuccess(me);
-  double damage = me.getDamage(targets[0], me.cDex + me.combat, action, me);
-  targets[0].getHp(damage, targets[0]);
-  targets[0].getEffect(
-      Effect(
-        name: "비열한 일격",
-        duration: 2,
-        dfBonus: -1,
-        buff: false,
-      ),
-      me);
-  me.link += action < 3 ? 1 : 2;
-  if (me.link > 4) {
-    me.link = 4;
-  }
-  if (action == 4) {
-    me.useSrc(20, me);
-  }
-  return true;
-}
-
-@override
-bool eviscerate(List<Character> targets, Character me) {
-  if (me.link == 0) {
-    return false;
-  }
-  int action = me.actionSuccess(me);
-  double damage = me.getDamage(targets[0], me.cDex + me.combat, action, me) *
-      pow(1.7, me.link);
-  targets[0].getHp(damage, targets[0]);
-  me.link = action < 4 ? 0 : me.link ~/ 2;
-  return true;
-}
-
-@override
-bool fanOfKnife(List<Character> targets, Character me) {
-  if (me.link == 0) {
-    return false;
-  }
-  int action = me.actionSuccess(me);
-  for (Character target in targets) {
-    double damage = me.getDamage(target, me.cDex + me.combat, action, me);
-    target.getHp(damage * pow(1.7, me.link) * 0.5, target);
-  }
-  me.link = action < 4 ? 0 : me.link ~/ 2;
-  return true;
-}
 
 // class Rogue extends Character {
 //   int link = 0;

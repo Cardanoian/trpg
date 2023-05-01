@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -83,13 +82,17 @@ class Character with ChangeNotifier {
   @HiveField(37)
   List skillCools = [0, 0, 0, 0];
   @HiveField(38)
-  bool blowAvailable = true;
+  double blowAvailable = 1;
   @HiveField(46)
   int link = 0;
   @HiveField(49)
   Character? lastTarget;
+  @HiveField(50)
+  Map<Character, double> aggro = {};
+  @HiveField(51)
+  double barrier = 0;
   @HiveField(70)
-  bool doubleDamage = false;
+  bool tripleDamage = false;
   @HiveField(71)
   String lastSource = "";
   @HiveField(54)
@@ -142,6 +145,7 @@ class Character with ChangeNotifier {
     for (Effect myEffect in me.effects) {
       if (myEffect.name == effect.name && myEffect.by == effect.by) {
         myEffect.duration = effect.duration;
+        myEffect.barrier = effect.barrier;
         notifyListeners();
         return;
       }
@@ -153,6 +157,7 @@ class Character with ChangeNotifier {
     me.combat += effect.combat;
     me.dfBonus += effect.dfBonus;
     me.diceAdv += effect.diceAdv;
+    me.barrier += effect.barrier;
     me.effects.add(effect);
     notifyListeners();
   }
@@ -343,6 +348,7 @@ class Character with ChangeNotifier {
     }
     me.src += src;
     me.src = me.src >= me.maxSrc ? me.maxSrc : me.src;
+    notifyListeners();
     return true;
   }
 
@@ -351,91 +357,98 @@ class Character with ChangeNotifier {
     return (me.cInt + me.combat) * me.actionSuccess(me) / 2;
   }
 
-  void showTestInfo() {}
+  @HiveField(60)
+  static void baseLevelUp(Character me) {
+    me.level++;
+    me.bStr += me.lvS;
+    me.bDex += me.lvD;
+    me.bInt += me.lvI;
+    me.renewStat(me);
+  }
 
-  void test(List<Character> targets, Character me) {
-    double turns = 0;
-    bool playing = true;
-    double totalDamage = 0;
-    while (turns <= 10 && playing) {
-      double thisTurn = 0;
-      while (thisTurn <= 1) {
-        targets[0].getHp(500, me);
-        showTestInfo();
-        print(
-            "자원: $src / $maxSrc\n누적 데미지: $totalDamage\n사용 턴: ${turns % 1} / $turns");
-        print(skillBook);
-        String? ipt = stdin.readLineSync();
-        if (ipt == "q") {
-          playing = false;
-          break;
-        }
-        if (ipt == "p") {
-          break;
-        }
-        if (ipt == "1" && skillBook[0].func != null) {
-          skillBook[0].func!(targets, me);
-          thisTurn += skillBook[0].turn;
-          turns += skillBook[0].turn;
-        } else if (ipt == "2" && skillBook[1].func != null) {
-          skillBook[1].func!(targets, me);
-          thisTurn += skillBook[1].turn;
-          turns += skillBook[1].turn;
-        } else if (ipt == "3" && skillBook[2].func != null) {
-          skillBook[2].func!(targets, me);
-          thisTurn += skillBook[2].turn;
-          turns += skillBook[2].turn;
-        } else if (ipt == "4" && skillBook[3].func != null) {
-          skillBook[3].func!(targets, me);
-          thisTurn += skillBook[3].turn;
-          turns += skillBook[3].turn;
-        } else if (ipt == "5" && skillBook[4].func != null) {
-          skillBook[4].func!(targets, me);
-          thisTurn += skillBook[4].turn;
-          turns += skillBook[4].turn;
-        }
-        totalDamage += (targets[0].maxHp - targets[0].hp);
+  @HiveField(61)
+  static void baseTurnStart(Character me) {
+    for (int i = 0; i < me.effects.length; i++) {
+      me.effects[i].duration -= 1;
+      if (me.effects[i].duration < 0) {
+        me.effects.removeAt(i);
+        continue;
       }
-      turnStart(me);
+      me.getHp(me.effects[i].hp, me);
     }
-    print("Total Damage: $totalDamage");
-    print("Used Turns: $turns");
-    print("Damage per Turn: ${totalDamage / turns}");
+    me.renewStat(me);
+    me.blowAvailable += 1;
   }
-}
 
-void baseLevelUp(Character me) {
-  me.level++;
-  me.bStr += me.lvS;
-  me.bDex += me.lvD;
-  me.bInt += me.lvI;
-  me.renewStat(me);
-}
-
-void baseTurnStart(Character me) {
-  for (int i = 0; i < me.effects.length; i++) {
-    me.effects[i].duration -= 1;
-    if (me.effects[i].duration < 0) {
-      me.effects.removeAt(i);
-      continue;
-    }
-    me.getHp(me.effects[i].hp, me);
+  @HiveField(62)
+  static double baseGetDamage(
+      Character target, double stat, int action, Character me) {
+    double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
+    return -1 * me.weapon.atBonus * stat * action / defend / 2;
   }
-  me.renewStat(me);
-}
 
-double baseGetDamage(Character target, double stat, int action, Character me) {
-  double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
-  return -1 * me.weapon.atBonus * stat * action / defend / 2;
-}
+  @HiveField(63)
+  static bool baseBlow(List<Character> targets, double damage, Character me) {
+    targets[0].getHp(damage, targets[0]);
+    return true;
+  }
 
-bool baseBlow(List<Character> targets, double damage, Character me) {
-  targets[0].getHp(damage, targets[0]);
-  return true;
-}
+  @HiveField(64)
+  static void baseGetHp(double hp, Character me) {
+    me.defaultGetHp(hp, me);
+  }
 
-void baseGetHp(double hp, Character me) {
-  me.defaultGetHp(hp, me);
+  @HiveField(65)
+  static void baseBattleStart(Character me) {}
+// void showTestInfo() {}
+//
+// void test(List<Character> targets, Character me) {
+//   double turns = 0;
+//   bool playing = true;
+//   double totalDamage = 0;
+//   while (turns <= 10 && playing) {
+//     double thisTurn = 0;
+//     while (thisTurn <= 1) {
+//       targets[0].getHp(500, me);
+//       showTestInfo();
+//       print(
+//           "자원: $src / $maxSrc\n누적 데미지: $totalDamage\n사용 턴: ${turns % 1} / $turns");
+//       print(skillBook);
+//       String? ipt = stdin.readLineSync();
+//       if (ipt == "q") {
+//         playing = false;
+//         break;
+//       }
+//       if (ipt == "p") {
+//         break;
+//       }
+//       if (ipt == "1" && skillBook[0].func != null) {
+//         skillBook[0].func!(targets, me);
+//         thisTurn += skillBook[0].turn;
+//         turns += skillBook[0].turn;
+//       } else if (ipt == "2" && skillBook[1].func != null) {
+//         skillBook[1].func!(targets, me);
+//         thisTurn += skillBook[1].turn;
+//         turns += skillBook[1].turn;
+//       } else if (ipt == "3" && skillBook[2].func != null) {
+//         skillBook[2].func!(targets, me);
+//         thisTurn += skillBook[2].turn;
+//         turns += skillBook[2].turn;
+//       } else if (ipt == "4" && skillBook[3].func != null) {
+//         skillBook[3].func!(targets, me);
+//         thisTurn += skillBook[3].turn;
+//         turns += skillBook[3].turn;
+//       } else if (ipt == "5" && skillBook[4].func != null) {
+//         skillBook[4].func!(targets, me);
+//         thisTurn += skillBook[4].turn;
+//         turns += skillBook[4].turn;
+//       }
+//       totalDamage += (targets[0].maxHp - targets[0].hp);
+//     }
+//     turnStart(me);
+//   }
+//   print("Total Damage: $totalDamage");
+//   print("Used Turns: $turns");
+//   print("Damage per Turn: ${totalDamage / turns}");
+// }
 }
-
-void baseBattleStart(Character me) {}

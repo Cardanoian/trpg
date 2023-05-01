@@ -58,17 +58,19 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..effects = (fields[26] as List).cast<Effect>()
       ..inventory = (fields[27] as List).cast<Item>()
       ..skillCools = (fields[37] as List).cast<dynamic>()
-      ..blowAvailable = fields[38] as bool
+      ..blowAvailable = fields[38] as double
       ..link = fields[46] as int
       ..lastTarget = fields[49] as Character?
-      ..doubleDamage = fields[70] as bool
+      ..aggro = (fields[50] as Map).cast<Character, double>()
+      ..barrier = fields[51] as double
+      ..tripleDamage = fields[70] as bool
       ..lastSource = fields[71] as String;
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(45)
+      ..writeByte(47)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -145,8 +147,12 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..write(obj.link)
       ..writeByte(49)
       ..write(obj.lastTarget)
+      ..writeByte(50)
+      ..write(obj.aggro)
+      ..writeByte(51)
+      ..write(obj.barrier)
       ..writeByte(70)
-      ..write(obj.doubleDamage)
+      ..write(obj.tripleDamage)
       ..writeByte(71)
       ..write(obj.lastSource)
       ..writeByte(54)

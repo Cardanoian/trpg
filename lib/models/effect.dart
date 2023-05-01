@@ -30,10 +30,13 @@ class Effect {
   bool buff;
   @HiveField(12)
   Function? addEffect;
+  @HiveField(13)
+  double barrier;
 
   Effect({
     this.by = "tmp",
     this.name = "tmp",
+    this.barrier = 0,
     this.duration = 0,
     this.strength = 0,
     this.dex = 0,

@@ -1,38 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'skill.dart';
+part of 'save_data.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class SkillAdapter extends TypeAdapter<Skill> {
+class SaveDataAdapter extends TypeAdapter<SaveData> {
   @override
-  final int typeId = 101;
+  final int typeId = 105;
 
   @override
-  Skill read(BinaryReader reader) {
+  SaveData read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Skill(
-      name: fields[0] as String,
-      turn: fields[1] as double,
-      func: fields[2] as Function?,
+    return SaveData(
+      heroes: (fields[0] as List).cast<Character>(),
+      enemies: (fields[1] as List).cast<Character>(),
+      lastPlayTime: fields[2] as DateTime,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Skill obj) {
+  void write(BinaryWriter writer, SaveData obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.heroes)
       ..writeByte(1)
-      ..write(obj.turn)
+      ..write(obj.enemies)
       ..writeByte(2)
-      ..write(obj.func);
+      ..write(obj.lastPlayTime);
   }
 
   @override
@@ -41,7 +41,7 @@ class SkillAdapter extends TypeAdapter<Skill> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SkillAdapter &&
+      other is SaveDataAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

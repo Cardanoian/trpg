@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:trpg/models/character.dart';
-import 'package:trpg/models/jobs/archer.dart';
-import 'package:trpg/models/jobs/paladin.dart';
-import 'package:trpg/models/jobs/priest.dart';
-import 'package:trpg/models/jobs/rogue.dart';
-import 'package:trpg/models/jobs/warrior.dart';
-import 'package:trpg/models/jobs/wizard.dart';
+import 'package:trpg/models/characters/character.dart';
+import 'package:trpg/models/characters/jobs/archer.dart';
+import 'package:trpg/models/characters/jobs/paladin.dart';
+import 'package:trpg/models/characters/jobs/priest.dart';
+import 'package:trpg/models/characters/jobs/rogue.dart';
+import 'package:trpg/models/characters/jobs/warrior.dart';
+import 'package:trpg/models/characters/jobs/wizard.dart';
+import 'package:trpg/services/hive_repository.dart';
 import 'package:trpg/services/save_data.dart';
 
 class NewDataScreen extends StatefulWidget {
-  final Box box;
   final String title;
   final int index;
 
   const NewDataScreen({
     Key? key,
     this.title = "TRPG",
-    required this.box,
     required this.index,
   }) : super(key: key);
 
@@ -69,7 +67,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
         actions: [
           IconButton(
             tooltip: "저장",
-            onPressed: () async {
+            onPressed: () {
               if (newData.heroes.isEmpty) return;
               print([
                 for (var hero in newData.heroes)
@@ -80,7 +78,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
               ]);
               print([for (var hero in newData.heroes) hero.runtimeType]);
               newData.resetPlayTime();
-              await widget.box.put("${widget.index}", newData);
+              HiveRepository.put("${widget.index}", newData);
             },
             icon: const Icon(Icons.save_rounded),
           ),

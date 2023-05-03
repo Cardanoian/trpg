@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trpg/models/skill.dart';
 
-import '../models/character.dart';
+import '../models/characters/character.dart';
 import '../models/targets.dart';
 
 class CharacterCard extends StatefulWidget {
@@ -102,13 +102,13 @@ class _CharacterCardState extends State<CharacterCard> {
               index == 6) {
             provocation(widget.character, targets[0]);
           } else if (widget.character.job == "사제" && index == 2) {
-            widget.character.skillBook[index].func!(
+            widget.character.skillBook[index].func(
               targets,
               widget.character,
               widget.heroes,
             );
           } else {
-            widget.character.skillBook[index].func!(
+            widget.character.skillBook[index].func(
               targets,
               widget.character,
             );

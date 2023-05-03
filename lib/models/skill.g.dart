@@ -19,7 +19,7 @@ class SkillAdapter extends TypeAdapter<Skill> {
     return Skill(
       name: fields[0] as String,
       turn: fields[1] as double,
-      func: fields[2] as Function?,
+      func: fields[2] as Function,
     );
   }
 

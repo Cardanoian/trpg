@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
-import '../models/character.dart';
+import '../models/characters/character.dart';
 
 part 'save_data.g.dart';
 

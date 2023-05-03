@@ -3,17 +3,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:trpg/screens/main_screen.dart';
 import 'package:trpg/screens/new_data_screen.dart';
+import 'package:trpg/services/hive_repository.dart';
 import 'package:trpg/services/save_data.dart';
 import 'package:trpg/widgets/save_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Box box;
   final String title;
 
   const HomeScreen({
     super.key,
-    this.title = "TRPG",
-    required this.box,
+    required this.title,
   });
 
   @override
@@ -27,9 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void refresh() {
     setState(() {
       saveDataList = [];
-      int i = 0;
       for (int i = 0; i < 5; i++) {
-        SaveData? data = widget.box.get("$i");
+        SaveData? data = HiveRepository.getData("$i");
         saveDataList.add(data);
       }
     });
@@ -82,76 +80,57 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  ListView saveDataListView(List<SaveData?> gameData) {
-    return ListView.separated(
-      shrinkWrap: true,
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            if (gameData[index] != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChangeNotifierProvider(
-                    create: (BuildContext context) => gameData[index],
-                    child: MainScreen(
-                      title: widget.title,
-                      box: widget.box,
-                      gameData: gameData[index]!,
-                    ),
-                  ),
-                ),
+  ValueListenableBuilder<Box<SaveData>> saveDataListView(
+      List<SaveData?> saveDataList) {
+    return ValueListenableBuilder(
+        valueListenable: HiveRepository.saveBox.listenable(),
+        builder: (BuildContext context, Box<SaveData> box, child) {
+          return ListView.separated(
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                onTap: () {
+                  if (saveDataList[index] != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChangeNotifierProvider(
+                          create: (BuildContext context) => saveDataList[index],
+                          child: MainScreen(
+                            title: widget.title,
+                            box: box,
+                            gameData: saveDataList[index]!,
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NewDataScreen(
+                          title: widget.title,
+                          index: index,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: saveDataList[index] == null
+                    ? const NoDataWidget()
+                    : SaveCard(
+                        box: box,
+                        index: index,
+                        saveDatum: saveDataList[index]!,
+                      ),
               );
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewDataScreen(
-                    box: widget.box,
-                    title: widget.title,
-                    index: index,
-                  ),
-                ),
-              );
-            }
-          },
-          child: gameData[index] == null
-              ? const NoDataWidget()
-              : SaveCard(
-                  box: widget.box,
-                  index: index,
-                  saveDatum: gameData[index]!,
-                ),
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) =>
-          const SizedBox(height: 10),
-      itemCount: 5,
-    );
+            },
+            separatorBuilder: (BuildContext context, int index) =>
+                const SizedBox(height: 10),
+            itemCount: 5,
+          );
+        });
   }
-
-// ElevatedButton newDataButton(BuildContext context) {
-//   return ElevatedButton(
-//     onPressed: () {
-//       Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => NewDataScreen(
-//             box: widget.box,
-//             title: widget.title,
-//           ),
-//         ),
-//       );
-//     },
-//     child: const Text(
-//       "새 데이터",
-//       style: TextStyle(
-//         fontSize: 30,
-//         fontWeight: FontWeight.w600,
-//       ),
-//     ),
-//   );
-// }
 }
 
 class NoDataWidget extends StatelessWidget {

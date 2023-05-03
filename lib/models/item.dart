@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:hive/hive.dart';
 
-import 'character.dart';
+import 'characters/character.dart';
 
 part 'item.g.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trpg/widgets/character_card.dart';
 
-import '../models/character.dart';
+import '../models/characters/character.dart';
 
 class HeroWidget extends StatelessWidget {
   final List<Character> heroList, enemyList;

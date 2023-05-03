@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:trpg/services/save_data.dart';
 
-import '../models/character.dart';
+import '../models/characters/character.dart';
 import '../models/targets.dart';
 import '../widgets/enemy_widget.dart';
 import '../widgets/hero_widget.dart';

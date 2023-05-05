@@ -1,8 +1,8 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character archer(String name) => Character(
       bStr: 3,
@@ -33,11 +33,10 @@ Character archer(String name) => Character(
       weaponType: Type.bow,
       armorType: Type.leather,
       skillBook: [
-        Skill(name: "신비한 사격", turn: 0.5, func: Magics.arcaneShot),
-        Skill(name: "다발 사격", turn: 0.5, func: Magics.volley),
-        Skill(name: "최후의 사격", turn: 0.5, func: Magics.killShot),
+        Skill(name: "신비한 사격", turn: 0.5, func: Magics.arcaneShot, src: "기력 40"),
+        Skill(name: "다발 사격", turn: 0.5, func: Magics.volley, src: "기력 40"),
+        Skill(name: "최후의 사격", turn: 0.5, func: Magics.killShot, src: "기력 20회복"),
         Skill(name: "평타", turn: 0.5, func: JobSkills.archerBlow),
-        Skill(func: defaultSkill),
       ],
     );
 

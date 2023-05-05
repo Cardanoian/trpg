@@ -1,8 +1,8 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character rogue(String name) => Character(
       name: name,
@@ -15,8 +15,8 @@ Character rogue(String name) => Character(
       lvS: 1,
       lvD: 3,
       levelUp: JobSkills.rogueLevelUp,
-      battleStart: JobSkills.battleStart,
-      turnStart: JobSkills.turnStart,
+      battleStart: JobSkills.rogueBattleStart,
+      turnStart: JobSkills.rogueTurnStart,
       getDamage: Character.baseGetDamage,
       getHp: Character.baseGetHp,
       weapon: baseDagger,
@@ -33,11 +33,15 @@ Character rogue(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "비열한 일격", turn: 0.5, func: Magics.sinisterStrike),
-        Skill(name: "절개", turn: 0.5, func: Magics.eviscerate),
-        Skill(name: "칼날부채", turn: 0.5, func: Magics.fanOfKnife),
+        Skill(
+            name: "비열한 일격",
+            turn: 0.5,
+            func: Magics.sinisterStrike,
+            src: "기력 40"),
+        Skill(name: "절개", turn: 0.5, func: Magics.eviscerate, src: "연계 모두 소모"),
+        Skill(
+            name: "칼날부채", turn: 0.5, func: Magics.fanOfKnife, src: "연계 모두 소모"),
         Skill(name: "평타", turn: 0.5, func: JobSkills.rogueBlow),
-        Skill(func: defaultSkill),
       ],
     );
 

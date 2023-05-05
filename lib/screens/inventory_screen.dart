@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../models/characters/character.dart';
-import '../widgets/item_card.dart';
+import 'package:trpg/models/characters/character.dart';
+import 'package:trpg/widgets/item_card.dart';
 
 class InventoryScreen extends StatefulWidget {
   final Character character;

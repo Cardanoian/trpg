@@ -1,8 +1,8 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character paladin(String name) => Character(
       bStr: 10,
@@ -12,6 +12,8 @@ Character paladin(String name) => Character(
       lvI: 2,
       name: name,
       job: "성기사",
+      srcName: "신성한 힘",
+      maxSrc: 5,
       levelUp: Character.baseLevelUp,
       battleStart: JobSkills.paladinBattleStart,
       getDamage: Character.baseGetDamage,
@@ -31,11 +33,24 @@ Character paladin(String name) => Character(
         "diceAdv"
       ],
       skillBook: [
-        Skill(name: "심판", turn: 0.5, func: Magics.judgement),
-        Skill(name: "정의의 방패", turn: 0.5, func: Magics.shieldOfRighteous),
-        Skill(name: "응징의 방패", turn: 0.5, func: Magics.avengersShield),
-        Skill(name: "빛의 가호", turn: 0.5, func: Magics.flashOfLight),
+        Skill(name: "심판", turn: 0.5, func: Magics.judgement, src: "1 회복"),
+        Skill(
+            name: "정의의 방패",
+            turn: 0.5,
+            func: Magics.shieldOfRighteous,
+            src: "3 소모"),
+        Skill(
+            name: "응징의 방패",
+            turn: 0.5,
+            func: Magics.avengersShield,
+            src: "2 회복"),
+        Skill(
+            name: "빛의 가호",
+            turn: 0.5,
+            func: Magics.flashOfLight,
+            src: "쿨 감소, 2회복"),
         Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
+        Skill(name: "도발", turn: 0, func: JobSkills.provocation),
       ],
     );
 

@@ -17,9 +17,9 @@ class SkillAdapter extends TypeAdapter<Skill> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Skill(
-      name: fields[0] as String,
-      turn: fields[1] as double,
-      func: fields[2] as Function,
+      name: fields[1] as String,
+      turn: fields[2] as double,
+      func: fields[3] as Function,
     );
   }
 
@@ -27,11 +27,11 @@ class SkillAdapter extends TypeAdapter<Skill> {
   void write(BinaryWriter writer, Skill obj) {
     writer
       ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.turn)
+      ..write(obj.name)
       ..writeByte(2)
+      ..write(obj.turn)
+      ..writeByte(3)
       ..write(obj.func);
   }
 

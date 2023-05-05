@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:trpg/models/characters/character.dart';
+import 'package:trpg/models/targets.dart';
+import 'package:trpg/services/battle_point.dart';
 import 'package:trpg/services/save_data.dart';
-
-import '../models/characters/character.dart';
-import '../models/targets.dart';
-import '../widgets/enemy_widget.dart';
-import '../widgets/hero_widget.dart';
+import 'package:trpg/services/save_data_list.dart';
+import 'package:trpg/widgets/character_card.dart';
 
 class MainScreen extends StatefulWidget {
   final String title;
-  final SaveData gameData;
-  final Box box;
+  final int saveIndex;
 
   const MainScreen({
     super.key,
     this.title = "TRPG",
-    required this.gameData,
-    required this.box,
+    required this.saveIndex,
   });
 
   @override
@@ -26,11 +23,19 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with ChangeNotifier {
   List<Character> turn = [];
+  bool isBattleOn = false;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (BuildContext context) => Targets(items: []),
+    SaveData gameData =
+        context.watch<SaveDataList>().saveDataList[widget.saveIndex]!;
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<Targets>(
+            create: (BuildContext context) => Targets()),
+        ChangeNotifierProvider<BattlePoint>(
+            create: (BuildContext context) => BattlePoint()),
+      ],
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
@@ -47,47 +52,42 @@ class _MainScreenState extends State<MainScreen> with ChangeNotifier {
             ),
             IconButton(
               tooltip: "몬스터 추가",
-              icon: const Icon(Icons.add_circle_outline),
               onPressed: () {},
-            ),
+              icon: const Icon(Icons.add_circle_outline_outlined),
+            )
           ],
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 600,
+              child: ListView.separated(
+                itemCount: gameData.heroes.length,
+                itemBuilder: (BuildContext context, int charIndex) =>
+                    CharacterCard(
+                  gameData: gameData,
+                  character: gameData.heroes[charIndex],
                 ),
-                child: Text('저장'),
+                separatorBuilder: (BuildContext context, int charIndex) =>
+                    const SizedBox(height: 10),
               ),
-              ListTile(
-                title: const Text('불러오기'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
+            ),
+            SizedBox(
+              width: 600,
+              child: ListView.separated(
+                itemCount: gameData.enemies.length,
+                itemBuilder: (BuildContext context, int charIndex) =>
+                    CharacterCard(
+                  gameData: gameData,
+                  character: gameData.enemies[charIndex],
+                ),
+                separatorBuilder: (BuildContext context, int charIndex) =>
+                    const SizedBox(height: 10),
               ),
-            ],
-          ),
-        ),
-        body: Center(
-          child: Row(
-            children: [
-              HeroWidget(
-                heroList: context.watch<SaveData>().heroes,
-                enemyList: context.watch<SaveData>().enemies,
-              ),
-              EnemyWidget(
-                heroList: context.watch<SaveData>().heroes,
-                enemyList: context.watch<SaveData>().enemies,
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: const Icon(Icons.next_plan_rounded),
+            ),
+          ],
         ),
       ),
     );

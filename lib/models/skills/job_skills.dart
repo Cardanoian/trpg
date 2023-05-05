@@ -94,13 +94,13 @@ class JobSkills {
   }
 
   @HiveField(9)
-  static void battleStart(Character me) {
+  static void rogueBattleStart(Character me) {
     me.src = me.maxSrc;
     me.link = 0;
   }
 
   @HiveField(10)
-  static void turnStart(Character me) {
+  static void rogueTurnStart(Character me) {
     me.useSrc(me.cDex.toInt(), me);
     Character.baseTurnStart(me);
   }
@@ -161,5 +161,17 @@ class JobSkills {
     me.tripleDamage = false;
     me.lastSource = "";
     me.renewStat(me);
+  }
+
+  @HiveField(18)
+  static void provocation(Character me, List<Character> targets) {
+    double aggro = 0;
+    Character target = targets[0];
+    for (Character char in target.aggro.keys) {
+      if (target.aggro[char]! > aggro) {
+        aggro = target.aggro[char]!;
+      }
+    }
+    target.aggro[me] = aggro;
   }
 }

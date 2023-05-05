@@ -1,8 +1,8 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character wizard(String name) => Character(
       name: name,
@@ -30,11 +30,20 @@ Character wizard(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "비전 탄막", turn: 0.5, func: Magics.arcaneBarrage),
-        Skill(name: "화염구", turn: 1, func: Magics.fireBall),
-        Skill(name: "화염 기둥", turn: 1, func: Magics.flameStrike),
-        Skill(name: "비전 작렬", turn: 0.5, func: Magics.arcaneBlast),
-        Skill(name: "비전 폭발", turn: 0.5, func: Magics.arcaneNova),
+        Skill(
+            name: "비전 탄막",
+            turn: 0.5,
+            func: Magics.arcaneBarrage,
+            src: "비전, 15회복"),
+        Skill(
+            name: "비전 작렬", turn: 0.5, func: Magics.arcaneBlast, src: "비전, 3소모"),
+        Skill(
+            name: "연쇄 번개",
+            turn: 0.5,
+            func: Magics.chainLightning,
+            src: "전기, 5소모"),
+        Skill(name: "화염구", turn: 0.5, func: Magics.fireBall, src: "화염, 3소모"),
+        Skill(name: "화염 기둥", turn: 1, func: Magics.flameStrike, src: "화염, 5소모"),
       ],
     );
 

@@ -4,16 +4,19 @@ part 'skill.g.dart';
 
 @HiveType(typeId: 101)
 class Skill {
-  @HiveField(0)
-  String name;
   @HiveField(1)
-  double turn;
+  String name;
   @HiveField(2)
+  double turn;
+  @HiveField(3)
   Function func;
+  @HiveField(4)
+  String src;
 
   Skill({
     this.name = "",
     this.turn = 1,
+    this.src = "0",
     required this.func,
   });
 }

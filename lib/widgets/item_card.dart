@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../models/item.dart';
+import 'package:trpg/models/item.dart';
 
 class ItemCard extends StatefulWidget {
   final Item item;

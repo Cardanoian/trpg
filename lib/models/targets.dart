@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trpg/models/characters/character.dart';
 
 class Targets extends ChangeNotifier {
-  List items;
-
-  Targets({required this.items});
+  List<Character> items = <Character>[];
 
   void add(item) {
     items.add(item);

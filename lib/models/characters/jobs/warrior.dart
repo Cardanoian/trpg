@@ -1,12 +1,14 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character warrior(String name) => Character(
       name: name,
       job: "전사",
+      srcName: "분노",
+      maxSrc: 100,
       bStr: 12,
       bDex: 5,
       bInt: 1,
@@ -30,11 +32,14 @@ Character warrior(String name) => Character(
         "diceAdv",
       ],
       skillBook: [
-        Skill(name: "천둥벼락", turn: 0.5, func: Magics.thunderClap),
-        Skill(name: "돌진", turn: 0.5, func: Magics.charge),
-        Skill(name: "방패의 벽", turn: 0.5, func: Magics.shieldWall),
-        Skill(name: "방패 밀쳐내기", turn: 0.5, func: Magics.shieldSlam),
+        Skill(
+            name: "천둥벼락", turn: 0.5, func: Magics.thunderClap, src: "대상 당 5회복"),
+        Skill(name: "돌진", turn: 0.5, func: Magics.charge, src: "분노 20회복"),
+        Skill(name: "방패의 벽", turn: 0.5, func: Magics.shieldWall, src: "분노 20"),
+        Skill(
+            name: "방패 밀쳐내기", turn: 0.5, func: Magics.shieldSlam, src: "분노 20"),
         Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
+        Skill(name: "도발", turn: 0, func: JobSkills.provocation),
       ],
     );
 

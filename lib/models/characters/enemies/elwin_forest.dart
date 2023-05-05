@@ -1,7 +1,7 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/characters/enemies/enemy.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/enemy_skills.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character goblin(int level) => enemy(
       name: "고블린",

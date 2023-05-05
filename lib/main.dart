@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/effect.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/enemy_skills.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 import 'package:trpg/screens/home_screen.dart';
 import 'package:trpg/services/hive_repository.dart';
 import 'package:trpg/services/save_data.dart';
+import 'package:trpg/services/save_data_list.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -37,14 +39,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: title,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomeScreen(
+    return ChangeNotifierProvider<SaveDataList>(
+      create: (BuildContext context) => SaveDataList(),
+      child: MaterialApp(
         title: title,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: HomeScreen(
+          title: title,
+        ),
       ),
     );
   }

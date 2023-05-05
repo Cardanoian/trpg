@@ -1,10 +1,9 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:trpg/services/save_data.dart';
 
 const String boxName = "TRPG";
 
 class HiveRepository {
-  static late final Box<SaveData> saveBox;
+  static late final Box<List> saveBox;
 
   static Future openBox() async {
     saveBox = await Hive.openBox(boxName);
@@ -14,18 +13,18 @@ class HiveRepository {
     saveBox.deleteFromDisk();
   }
 
-  static Future<void> put(String name, SaveData saveData) async {
-    saveBox.put(name, saveData);
+  static Future<void> put(String name, List gameData) async {
+    saveBox.put(name, gameData);
   }
 
-  static SaveData? getData(String key) => saveBox.get(key);
+  static List? getData(String key) => saveBox.get(key);
 
-  static List<SaveData> getAllData() => saveBox.values.toList();
+  static List<List> getAllData() => saveBox.values.toList();
 
-  static Future<SaveData?> getAtIndex(int index) async => saveBox.getAt(index);
+  static Future<List?> getAtIndex(int index) async => saveBox.getAt(index);
 
-  static Future update(int index, SaveData saveData) async =>
-      saveBox.putAt(index, saveData);
+  static Future update(int index, List mapData) async =>
+      saveBox.putAt(index, mapData);
 
   static Future delete(String name) async {
     saveBox.delete(name);

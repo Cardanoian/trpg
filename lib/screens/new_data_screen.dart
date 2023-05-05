@@ -7,6 +7,7 @@ import 'package:trpg/models/characters/jobs/rogue.dart';
 import 'package:trpg/models/characters/jobs/warrior.dart';
 import 'package:trpg/models/characters/jobs/wizard.dart';
 import 'package:trpg/services/hive_repository.dart';
+import 'package:trpg/services/saveDataToMap.dart';
 import 'package:trpg/services/save_data.dart';
 
 class NewDataScreen extends StatefulWidget {
@@ -78,7 +79,11 @@ class _NewDataScreenState extends State<NewDataScreen> {
               ]);
               print([for (var hero in newData.heroes) hero.runtimeType]);
               newData.resetPlayTime();
-              HiveRepository.put("${widget.index}", newData);
+              for (var hero in newData.heroes) {
+                hero.hp = hero.maxHp;
+                hero.src = hero.maxSrc;
+              }
+              HiveRepository.put("${widget.index}", saveDataToMap(newData));
             },
             icon: const Icon(Icons.save_rounded),
           ),

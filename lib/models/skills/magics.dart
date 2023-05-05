@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/effect.dart';
+
 part 'magics.g.dart';
 
 @HiveType(typeId: 107)
 class Magics {
-  @HiveField(0)
-  static bool renew(List<Character> targets, Character me) {
+  @HiveField(1)
+  static bool renew(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-3, me)) {
       return false;
     }
@@ -26,9 +28,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(1)
-  static bool penance(
-      List<Character> targets, Character me, List<Character> heroes) {
+  @HiveField(2)
+  static bool penance(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     double spellPower = me.getSpellPower(me);
     targets[0].getHp(-2 * spellPower, targets[0]);
     Character target = me;
@@ -41,8 +43,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(2)
-  static bool healing(List<Character> targets, Character me) {
+  @HiveField(3)
+  static bool healing(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (targets[0] == me || me.hp / me.maxHp <= 0.1) {
       return false;
     }
@@ -59,8 +62,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(3)
-  static bool protectionBarrier(List<Character> targets, Character me) {
+  @HiveField(4)
+  static bool protectionBarrier(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-5, me)) return false;
     targets[0].getEffect(
         Effect(
@@ -74,8 +78,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(4)
-  static bool circleOfHealing(List<Character> targets, Character me) {
+  @HiveField(5)
+  static bool circleOfHealing(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-10, me)) {
       return false;
     }
@@ -86,8 +91,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(5)
-  static bool arcaneShot(List<Character> targets, Character me) {
+  @HiveField(6)
+  static bool arcaneShot(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-40, me)) {
       return false;
     }
@@ -103,8 +109,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(6)
-  static bool volley(List<Character> targets, Character me) {
+  @HiveField(7)
+  static bool volley(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-40, me)) {
       return false;
     }
@@ -116,8 +123,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(7)
-  static bool killShot(List<Character> targets, Character me) {
+  @HiveField(8)
+  static bool killShot(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[2] > 0 || targets[0].hp / targets[0].maxHp >= 0.3) {
       return false;
     }
@@ -131,8 +139,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(8)
-  static bool judgement(List<Character> targets, Character me) {
+  @HiveField(9)
+  static bool judgement(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[0] != 0) {
       return false;
     }
@@ -149,8 +158,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(9)
-  static bool shieldOfRighteous(List<Character> targets, Character me) {
+  @HiveField(10)
+  static bool shieldOfRighteous(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.src < 3) {
       return false;
     }
@@ -163,7 +173,7 @@ class Magics {
         Effect(
           name: "신성한 방패",
           duration: 2,
-          dfBonus: me.dfBonus,
+          dfBonus: me.armor.dfBonus,
         ),
         me);
     for (Character target in targets) {
@@ -175,8 +185,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(10)
-  static bool avengersShield(List<Character> targets, Character me) {
+  @HiveField(11)
+  static bool avengersShield(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[2] != 0) {
       return false;
     }
@@ -194,27 +205,23 @@ class Magics {
     return true;
   }
 
-  @HiveField(11)
-  static bool flashOfLight(List<Character> targets, Character me) {
+  @HiveField(12)
+  static bool flashOfLight(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[3] != 0) {
       return false;
     }
-    double damage = me.getDamage(
-      targets[0],
-      me.cStr / 2.0 + me.cInt + me.combat,
-      me.actionSuccess(me),
-      me,
-    );
-    me.getHp(damage, me);
+    me.getHp(me.combat, me);
     me.useSrc(2, me);
-    me.skillCools[2] = 0;
     me.skillCools[0] = 0;
+    me.skillCools[2] = 0;
     me.skillCools[3] = 5;
     return true;
   }
 
-  @HiveField(12)
-  static bool sinisterStrike(List<Character> targets, Character me) {
+  @HiveField(13)
+  static bool sinisterStrike(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-40, me)) {
       return false;
     }
@@ -239,8 +246,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(13)
-  static bool eviscerate(List<Character> targets, Character me) {
+  @HiveField(14)
+  static bool eviscerate(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.link == 0) {
       return false;
     }
@@ -252,8 +260,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(14)
-  static bool fanOfKnife(List<Character> targets, Character me) {
+  @HiveField(15)
+  static bool fanOfKnife(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.link == 0) {
       return false;
     }
@@ -266,12 +275,14 @@ class Magics {
     return true;
   }
 
-  @HiveField(15)
-  static bool thunderClap(List<Character> targets, Character me) {
+  @HiveField(16)
+  static bool thunderClap(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[0] > 0) {
       return false;
     }
     me.skillCools[0] = 2;
+    me.useSrc(5 * targets.length, me);
     for (Character target in targets) {
       target.getHp(
           me.getDamage(target, me.cStr + me.combat, me.actionSuccess(me), me) *
@@ -291,8 +302,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(16)
-  static bool charge(List<Character> targets, Character me) {
+  @HiveField(17)
+  static bool charge(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (me.skillCools[1] > 0) {
       return false;
     }
@@ -301,8 +313,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(17)
-  static bool shieldWall(List<Character> targets, Character me) {
+  @HiveField(18)
+  static bool shieldWall(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-20, me)) {
       return false;
     }
@@ -318,8 +331,9 @@ class Magics {
     return true;
   }
 
-  @HiveField(18)
-  static bool shieldSlam(List<Character> targets, Character me) {
+  @HiveField(19)
+  static bool shieldSlam(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-20, me)) {
       return false;
     }
@@ -339,38 +353,39 @@ class Magics {
     return true;
   }
 
-  @HiveField(19)
-  static bool arcaneBarrage(List<Character> targets, Character me) {
+  @HiveField(20)
+  static bool arcaneBarrage(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     me.useSrc(15, me);
     targets[0].getHp(me.getDamage(targets[0], "비전", me) * 0.5, targets[0]);
     return true;
   }
 
-  @HiveField(20)
-  static bool fireBall(List<Character> targets, Character me) {
+  @HiveField(21)
+  static bool fireBall(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-3, me)) {
       return false;
     }
     targets[0].getHp(me.getDamage(targets[0], "화염", me) * 2, targets[0]);
+    return true;
+  }
+
+  @HiveField(22)
+  static bool flameStrike(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
+    if (!me.useSrc(-5, me)) {
+      return false;
+    }
     for (Character target in targets) {
       target.getHp(me.getDamage(target, "화염", me), target);
     }
     return true;
   }
 
-  @HiveField(21)
-  static bool flameStrike(List<Character> targets, Character me) {
-    if (!me.useSrc(-5, me)) {
-      return false;
-    }
-    for (Character target in targets) {
-      target.getHp(me.getDamage(target, "화염", me) * 0.7, target);
-    }
-    return true;
-  }
-
-  @HiveField(22)
-  static bool arcaneBlast(List<Character> targets, Character me) {
+  @HiveField(23)
+  static bool arcaneBlast(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
     if (!me.useSrc(-3, me)) {
       return false;
     }
@@ -379,13 +394,14 @@ class Magics {
     return true;
   }
 
-  @HiveField(23)
-  static bool arcaneNova(List<Character> targets, Character me) {
-    if (!me.useSrc(-3, me)) {
+  @HiveField(24)
+  static bool chainLightning(List<Character> targets, Character me,
+      List<Character> heroes, List<Character> enemies) {
+    if (!me.useSrc(-5, me)) {
       return false;
     }
-    for (Character target in targets) {
-      target.getHp(me.getDamage(target, "비전", me) * 0.3, target);
+    for (int i = 0; i < 3 || i < targets.length; i++) {
+      targets[i].getHp(me.getDamage(targets[i], "전기", me), targets[i]);
     }
     return true;
   }

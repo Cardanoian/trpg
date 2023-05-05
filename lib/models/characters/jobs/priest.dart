@@ -1,8 +1,8 @@
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
 import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 Character priest(String name) => Character(
       name: name,
@@ -30,11 +30,19 @@ Character priest(String name) => Character(
       armor: baseCloth,
       accessory: baseAccessory,
       skillBook: [
-        Skill(name: "소생", turn: 0.5, func: Magics.renew),
+        Skill(name: "소생", turn: 0.5, func: Magics.renew, src: "mp 3"),
         Skill(name: "회개", turn: 0.5, func: Magics.penance),
-        Skill(name: "치유", turn: 0.5, func: Magics.healing),
-        Skill(name: "수호의 보호막", turn: 0.5, func: Magics.protectionBarrier),
-        Skill(name: "치유의 마법진", turn: 1, func: Magics.circleOfHealing),
+        Skill(name: "치유", turn: 0.5, func: Magics.healing, src: "hp 10%"),
+        Skill(
+            name: "수호의 보호막",
+            turn: 0.5,
+            func: Magics.protectionBarrier,
+            src: "mp 5"),
+        Skill(
+            name: "치유의 마법진",
+            turn: 1,
+            func: Magics.circleOfHealing,
+            src: "mp 10"),
       ],
     );
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:trpg/models/effect.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skill.dart';
+import 'package:trpg/models/skills/skill.dart';
 
 part 'character.g.dart';
 
@@ -134,7 +134,12 @@ class Character with ChangeNotifier {
     required this.armor,
     required this.accessory,
     required this.skillBook,
-  });
+  }) {
+    renewStat(this);
+    hp = maxHp;
+    src = maxSrc;
+    renewStat(this);
+  }
 
   @HiveField(100)
   void getEffect(Effect effect, Character me) {
@@ -172,7 +177,7 @@ class Character with ChangeNotifier {
         combat: 0,
         dfBonus: 0,
         diceAdv: 0);
-    for (Effect effect in me.effects) {
+    for (Effect effect in effects) {
       tmpEffect.strength += effect.strength;
       tmpEffect.dex += effect.dex;
       tmpEffect.intel += effect.intel;
@@ -184,40 +189,27 @@ class Character with ChangeNotifier {
         tmpEffect.addEffect!(me, tmpEffect);
       }
     }
-    me.cStr = me.bStr +
-        me.weapon.strength +
-        me.armor.strength +
-        me.accessory.strength +
+    cStr = bStr +
+        weapon.strength +
+        armor.strength +
+        accessory.strength +
         tmpEffect.strength;
-    me.cDex = me.bDex +
-        me.weapon.dex +
-        me.armor.dex +
-        me.accessory.dex +
-        tmpEffect.dex;
-    me.cInt = me.bInt +
-        me.weapon.intel +
-        me.armor.intel +
-        me.accessory.intel +
-        tmpEffect.intel;
-    me.atBonus = me.weapon.atBonus +
-        me.armor.atBonus +
-        me.accessory.atBonus +
-        tmpEffect.atBonus;
-    me.combat = me.weapon.combat +
-        me.armor.combat +
-        me.accessory.combat +
-        tmpEffect.combat;
-    me.dfBonus = me.weapon.dfBonus +
-        me.armor.dfBonus +
-        me.accessory.dfBonus +
-        tmpEffect.dfBonus;
-    me.diceAdv = me.weapon.diceAdv +
-        me.armor.diceAdv +
-        me.accessory.diceAdv +
-        tmpEffect.diceAdv;
-    me.maxHp = (me.level + me.bStr) * 5;
-    if (me.hp >= me.maxHp) {
-      me.hp = me.maxHp;
+    cDex = bDex + weapon.dex + armor.dex + accessory.dex + tmpEffect.dex;
+    cInt =
+        bInt + weapon.intel + armor.intel + accessory.intel + tmpEffect.intel;
+    atBonus =
+        weapon.atBonus + armor.atBonus + accessory.atBonus + tmpEffect.atBonus;
+    combat = weapon.combat + armor.combat + accessory.combat + tmpEffect.combat;
+    dfBonus =
+        weapon.dfBonus + armor.dfBonus + accessory.dfBonus + tmpEffect.dfBonus;
+    diceAdv =
+        weapon.diceAdv + armor.diceAdv + accessory.diceAdv + tmpEffect.diceAdv;
+    maxHp = level * 10 + cStr * 5;
+    if (hp >= maxHp) {
+      hp = maxHp;
+    }
+    if (job == "마법사" || job == "사제") {
+      maxSrc = (level + cInt) * 10;
     }
     notifyListeners();
   }
@@ -364,14 +356,15 @@ class Character with ChangeNotifier {
 
   @HiveField(113)
   static void baseTurnStart(Character me) {
-    for (int i = 0; i < me.effects.length; i++) {
-      me.effects[i].duration -= 1;
-      if (me.effects[i].duration < 0) {
-        me.effects.removeAt(i);
-        continue;
+    List<Effect> tmpEffects = <Effect>[];
+    for (Effect effect in me.effects) {
+      effect.duration -= 1;
+      if (effect.duration >= 0) {
+        tmpEffects.add(effect);
       }
-      me.getHp(me.effects[i].hp, me);
+      me.getHp(effect.hp, me);
     }
+    me.effects = tmpEffects;
     me.renewStat(me);
     me.blowAvailable += 1;
   }

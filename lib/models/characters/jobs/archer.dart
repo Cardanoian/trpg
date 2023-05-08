@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character archer(String name) => Character(
+Character archer(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       bStr: 3,
       bDex: 11,
       bInt: 4,
@@ -38,6 +43,8 @@ Character archer(String name) => Character(
         Skill(name: "최후의 사격", turn: 0.5, func: Magics.killShot, src: "기력 20회복"),
         Skill(name: "평타", turn: 0.5, func: JobSkills.archerBlow),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 // class Archer extends Character {

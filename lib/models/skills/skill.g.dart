@@ -19,6 +19,7 @@ class SkillAdapter extends TypeAdapter<Skill> {
     return Skill(
       name: fields[1] as String,
       turn: fields[2] as double,
+      src: fields[4] as String,
       func: fields[3] as Function,
     );
   }
@@ -26,13 +27,15 @@ class SkillAdapter extends TypeAdapter<Skill> {
   @override
   void write(BinaryWriter writer, Skill obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
       ..write(obj.turn)
       ..writeByte(3)
-      ..write(obj.func);
+      ..write(obj.func)
+      ..writeByte(4)
+      ..write(obj.src);
   }
 
   @override

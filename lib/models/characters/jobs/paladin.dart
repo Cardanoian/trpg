@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character paladin(String name) => Character(
+Character paladin(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       bStr: 10,
       bDex: 2,
       bInt: 6,
@@ -17,7 +22,7 @@ Character paladin(String name) => Character(
       levelUp: Character.baseLevelUp,
       battleStart: JobSkills.paladinBattleStart,
       getDamage: Character.baseGetDamage,
-      getHp: Character.baseGetHp,
+      getHp: JobSkills.paladinGetHp,
       turnStart: JobSkills.paladinTurnStart,
       weapon: baseShield,
       armor: basePlate,
@@ -36,7 +41,7 @@ Character paladin(String name) => Character(
         Skill(name: "심판", turn: 0.5, func: Magics.judgement, src: "1 회복"),
         Skill(
             name: "정의의 방패",
-            turn: 0.5,
+            turn: 0,
             func: Magics.shieldOfRighteous,
             src: "3 소모"),
         Skill(
@@ -52,13 +57,15 @@ Character paladin(String name) => Character(
         Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
         Skill(name: "도발", turn: 0, func: JobSkills.provocation),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 bool blow(List<Character> targets, Character me) {
   if (me.blowAvailable < 1) {
     return false;
   }
-  int action = me.actionSuccess(me);
+  int action = me.actionSuccess();
   targets[0].getHp(
       me.getDamage(
               targets[0], me.cStr / 2.0 + me.cInt + me.combat, action, me) *

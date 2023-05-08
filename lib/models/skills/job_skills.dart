@@ -5,6 +5,7 @@ part 'job_skills.g.dart';
 
 @HiveType(typeId: 106)
 class JobSkills {
+  // Priest
   @HiveField(0)
   static void priestLevelUp(Character me) {
     me.level++;
@@ -13,7 +14,7 @@ class JobSkills {
     me.bInt += me.lvI;
     me.maxSrc = me.level * 10 + me.cInt * 5;
     me.src = me.maxSrc;
-    me.renewStat(me);
+    me.refreshStatus();
   }
 
   @HiveField(1)
@@ -21,6 +22,7 @@ class JobSkills {
     me.src = me.maxSrc;
   }
 
+  // Archer
   @HiveField(2)
   static void archerBattleStart(Character me) {
     me.lastTarget = null;
@@ -35,7 +37,7 @@ class JobSkills {
     if (me.lastTarget != null) {
       if (me.lastTarget == target) {
         damage *= 2;
-        me.useSrc(10, me);
+        me.useSrc(10);
       }
     }
     me.lastTarget = target;
@@ -45,7 +47,7 @@ class JobSkills {
   @HiveField(4)
   static void archerTurnStart(Character me) {
     me.skillCools[2] = 0;
-    me.useSrc(me.cDex.toInt(), me);
+    me.useSrc(me.cDex.toInt());
     me.blowAvailable = 1;
     Character.baseTurnStart(me);
   }
@@ -55,19 +57,15 @@ class JobSkills {
     if (me.blowAvailable < 1) {
       return false;
     }
-    targets[0].getHp(
-        me.getDamage(
-              targets[0],
-              me.cDex + me.combat,
-              me.actionSuccess(me),
-              me,
-            ) *
-            2,
-        me);
+    int action = me.actionSuccess();
+    double damage =
+        2.0 * me.getDamage(targets[0], me.cDex + me.combat, action, me);
     me.blowAvailable -= 1;
+    Character.baseBlow(targets, damage, me);
     return true;
   }
 
+  // Paladin
   @HiveField(6)
   static void paladinBattleStart(Character me) {
     me.skillCools[0] = 0;
@@ -84,67 +82,68 @@ class JobSkills {
     }
   }
 
-  @HiveField(8)
-  static void rogueLevelUp(Character me) {
-    if (me.level >= 5) {
-      me.maxSrc = 120;
-      me.src = me.maxSrc;
+  static void paladinGetHp(double hp, Character by, Character me) {
+    if (hp < 0) {
+      for (var effect in me.effects) {
+        if (effect.name == "신성한 방패") {
+          hp /= 2;
+          break;
+        }
+      }
     }
-    Character.baseLevelUp(me);
+    me.getHp(hp, by, me);
   }
 
-  @HiveField(9)
+  // Rogue
   static void rogueBattleStart(Character me) {
+    Character.baseBattleStart(me);
     me.src = me.maxSrc;
     me.link = 0;
   }
 
-  @HiveField(10)
   static void rogueTurnStart(Character me) {
-    me.useSrc(me.cDex.toInt(), me);
+    me.useSrc(me.cDex.toInt());
     Character.baseTurnStart(me);
   }
 
-  @HiveField(11)
   static bool rogueBlow(List<Character> targets, Character me) {
-    int action = me.actionSuccess(me);
+    if (me.timePoint < 0.5) {
+      return false;
+    }
+    int action = me.actionSuccess();
     double damage = me.getDamage(targets[0], me.cDex + me.combat, action) * -1;
     Character.baseBlow(targets, damage, me);
-    me.useSrc(action == 4 ? 20 : 10, me);
+    me.useSrc(action == 4 ? 20 : 10);
+    me.timePoint -= 0.5;
     return true;
   }
 
-  @HiveField(12)
+  // Warrior
   static void warriorBattleStart(Character me) {
+    Character.baseBattleStart(me);
     me.src = 0;
     me.skillCools[0] = 0;
     me.skillCools[1] = 0;
   }
 
-  @HiveField(13)
   static void warriorTurnStart(Character me) {
-    me.skillCools[0] -= me.skillCools[0] > 0 ? 1 : 0;
-    me.skillCools[1] -= me.skillCools[1] > 0 ? 1 : 0;
+    me.skillCools[0] -= (me.skillCools[0] > 0 ? 1 : 0);
+    me.skillCools[1] -= (me.skillCools[1] > 0 ? 1 : 0);
     Character.baseTurnStart(me);
   }
 
-  @HiveField(14)
-  static void warriorGetHp(double hp, Character me) {
+  static void warriorGetHp(double hp, Character by, Character me) {
     if (hp > 0) {
-      me.useSrc(5, me);
+      me.useSrc(me.cStr ~/ 3);
     }
-    me.defaultGetHp(hp, me);
+    me.getHp(hp, by, me);
   }
 
-  @HiveField(15)
-  static void wizardLevelUp(Character me) {
-    me.maxSrc = me.level * 10 + me.cInt * 5;
-    Character.baseLevelUp(me);
-  }
+  // Wizard
 
-  @HiveField(16)
-  static double wizardGetDamage(Character target, String source, Character me) {
-    double damage = -1 * (me.cInt + me.combat) * me.actionSuccess(me) / 2;
+  static double wizardGetDamage(
+      Character target, String source, Character me, int action) {
+    double damage = -me.getSpellPower(action);
     if (me.tripleDamage) {
       damage *= 3;
       me.tripleDamage = false;
@@ -156,13 +155,13 @@ class JobSkills {
     return damage;
   }
 
-  @HiveField(17)
   static void wizardBattleStart(Character me) {
     me.tripleDamage = false;
     me.lastSource = "";
-    me.renewStat(me);
+    Character.baseBattleStart(me);
   }
 
+  // Common
   @HiveField(18)
   static void provocation(Character me, List<Character> targets) {
     double aggro = 0;

@@ -17,17 +17,41 @@ SaveData mapToSaveData(List mapData) {
   for (var heroData in mapData) {
     late Character hero;
     if (heroData["job"] == "전사") {
-      hero = warrior(heroData["name"]);
+      hero = warrior(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     } else if (heroData["job"] == "성기사") {
-      hero = paladin(heroData["name"]);
+      hero = paladin(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     } else if (heroData["job"] == "도적") {
-      hero = rogue(heroData["name"]);
+      hero = rogue(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     } else if (heroData["job"] == "궁수") {
-      hero = archer(heroData["name"]);
+      hero = archer(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     } else if (heroData["job"] == "마법사") {
-      hero = wizard(heroData["name"]);
+      hero = wizard(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     } else {
-      hero = priest(heroData["name"]);
+      hero = priest(
+        heroData["name"],
+        result.heroes,
+        result.enemies,
+      );
     }
     hero.level = heroData["level"];
     hero.exp = heroData["exp"];

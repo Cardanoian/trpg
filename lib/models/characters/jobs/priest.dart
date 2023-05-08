@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character priest(String name) => Character(
+Character priest(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       name: name,
       job: "사제",
       bStr: 4,
@@ -44,6 +49,8 @@ Character priest(String name) => Character(
             func: Magics.circleOfHealing,
             src: "mp 10"),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 // class Priest extends Character {

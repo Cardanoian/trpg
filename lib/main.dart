@@ -4,13 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/effect.dart';
 import 'package:trpg/models/item.dart';
-import 'package:trpg/models/skills/enemy_skills.dart';
-import 'package:trpg/models/skills/job_skills.dart';
-import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
+import 'package:trpg/models/targets.dart';
 import 'package:trpg/screens/home_screen.dart';
+import 'package:trpg/services/game_data.dart';
 import 'package:trpg/services/hive_repository.dart';
-import 'package:trpg/services/save_data.dart';
 import 'package:trpg/services/save_data_list.dart';
 
 void main() async {
@@ -20,12 +18,7 @@ void main() async {
   Hive.registerAdapter(SkillAdapter());
   Hive.registerAdapter(ItemTypeAdapter());
   Hive.registerAdapter(DetailTypeAdapter());
-  Hive.registerAdapter(GradeAdapter());
   Hive.registerAdapter(EffectAdapter());
-  Hive.registerAdapter(SaveDataAdapter());
-  Hive.registerAdapter(MagicsAdapter());
-  Hive.registerAdapter(JobSkillsAdapter());
-  Hive.registerAdapter(EnemySkillsAdapter());
   await HiveRepository.openBox();
   runApp(const MyApp());
 }
@@ -39,17 +32,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<SaveDataList>(
-      create: (BuildContext context) => SaveDataList(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (BuildContext context) => SaveDataList()),
+        ChangeNotifierProvider<Targets>(
+            create: (BuildContext context) => Targets()),
+        ChangeNotifierProvider<GameData>(
+            create: (BuildContext context) => GameData()),
+      ],
       child: MaterialApp(
         title: title,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomeScreen(
-          title: title,
-        ),
+        home: const HomeScreen(),
       ),
     );
   }

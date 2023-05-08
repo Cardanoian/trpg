@@ -3,19 +3,31 @@ import 'package:trpg/models/characters/enemies/enemy.dart';
 import 'package:trpg/models/skills/enemy_skills.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character goblin(int level) => enemy(
+Character goblin(
+  int level,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    enemy(
       name: "고블린",
       job: "적",
-      bStr: 20 + level * 1.5,
+      bStr: 20 + level * 2,
       bDex: 3,
       bInt: 4 + level * 1.5,
       skillBook: [
         Skill(name: "후려치기", turn: 1, func: EnemySkills.strike),
         Skill(name: "꿰뚫기", turn: 1, func: EnemySkills.pierce),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
-Character goblinArcher(int level) => enemy(
+Character goblinArcher(
+  int level,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    enemy(
       name: "고블린 궁수",
       job: "적",
       level: level,
@@ -25,66 +37,65 @@ Character goblinArcher(int level) => enemy(
       skillBook: [
         Skill(name: "사격", turn: 1, func: EnemySkills.shoot),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
-Character goblinChief(int level) => enemy(
-      name: "고블린 대장",
+Character goblinBomber(
+  int level,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    enemy(
+      name: "고블린 폭발병",
       job: "적",
       level: level,
-      bStr: 100 + level * 2.0,
+      bStr: 20 + level * 1.5,
       bDex: 3,
-      bInt: 12 + level * 2.0,
+      bInt: 4 + level * 1.5,
       skillBook: [
-        Skill(name: "발구르기", turn: 1, func: EnemySkills.stomp),
+        Skill(name: "폭발", turn: 1, func: EnemySkills.bomb),
+      ],
+      heroes: heroes,
+      enemies: enemies,
+    );
+
+Character goblinChief(
+  int level,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    enemy(
+      name: "고블린 대장",
+      job: "적",
+      level: level + 1,
+      bStr: 100 + level * 10,
+      bDex: 3,
+      bInt: 12 + level * 3.0,
+      skillBook: [
+        Skill(name: "발 구르기", turn: 1, func: EnemySkills.stomp),
         Skill(name: "꿰뚫기", turn: 1, func: EnemySkills.pierce),
         Skill(name: "방어구 부수기", turn: 1, func: EnemySkills.breakingArmor),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
-// class Goblin extends Character {
-//   Goblin({
-//     String name = "고블린",
-//     double bStr = 11,
-//     double bDex = 7,
-//     double bInt = 1,
-//     required List<Skill> skillBook,
-//   }) : super(
-//           bStr: bStr,
-//           bDex: bDex,
-//           bInt: bInt,
-//           itemStats: [],
-//           weapon: baseDagger,
-//           armor: baseLeather,
-//           accessory: baseAccessory,
-//           skillBook: skillBook,
-//           battleStart: baseBattleStart,
-//           blow: baseBlow,
-//           getDamage: baseGetDamage,
-//           getHp: defaultGetHp,
-//           levelUp: baseLevelUp,
-//           turnStart: baseTurnStart,
-//           skill1: defaultSkill,
-//           skill2: defaultSkill,
-//           skill3: defaultSkill,
-//           skill4: defaultSkill,
-//         );
-//
-//   bool strike(List<Character> targets, Character me) {
-//     double damage = getDamage(targets[0], cDex, actionSuccess(me));
-//     targets[0].getHp(-2.0 * damage);
-//     return true;
-//   }
-//
-//   bool stomp(List<Character> targets, Character me) {
-//     for (int i = 0; i < targets.length; i++) {
-//       double damage = getDamage(targets[i], cDex, actionSuccess(me));
-//       targets[i].getHp(-0.5 * damage);
-//     }
-//     return true;
-//   }
-//
-//   bool shoot(List<Character> targets, Character me) {
-//     double damage = getDamage(targets[0], cDex, actionSuccess(me));
-//     targets[0].getHp(-2.5 * damage);
-//     return true;
-//   }
-// }
+
+Character wolf(
+  int level,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    enemy(
+      name: "호랑이",
+      job: "적",
+      level: level,
+      bStr: 20 + 2,
+      bDex: 3,
+      bInt: 5 + level * 1.5,
+      skillBook: [
+        Skill(name: "물기", turn: 1, func: EnemySkills.pierce),
+      ],
+      heroes: heroes,
+      enemies: enemies,
+    );

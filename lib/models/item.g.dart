@@ -17,7 +17,6 @@ class ItemAdapter extends TypeAdapter<Item> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Item(
-      name: fields[0] as String,
       cost: fields[1] as int,
       quantity: fields[2] as int,
       itemType: fields[3] as ItemType,
@@ -29,7 +28,7 @@ class ItemAdapter extends TypeAdapter<Item> {
       intel: fields[10] as double,
       diceAdv: fields[11] as double,
       type: fields[4] as Type,
-      grade: fields[12] as Grade,
+      grade: fields[12] as int,
       ability: (fields[14] as List).cast<String>(),
     )..isChecked = fields[13] as bool;
   }
@@ -37,9 +36,7 @@ class ItemAdapter extends TypeAdapter<Item> {
   @override
   void write(BinaryWriter writer, Item obj) {
     writer
-      ..writeByte(15)
-      ..writeByte(0)
-      ..write(obj.name)
+      ..writeByte(14)
       ..writeByte(1)
       ..write(obj.cost)
       ..writeByte(2)
@@ -147,6 +144,8 @@ class DetailTypeAdapter extends TypeAdapter<Type> {
       case 6:
         return Type.cloth;
       case 7:
+        return Type.accessory;
+      case 8:
         return Type.money;
       default:
         return Type.shield;
@@ -177,8 +176,11 @@ class DetailTypeAdapter extends TypeAdapter<Type> {
       case Type.cloth:
         writer.writeByte(6);
         break;
-      case Type.money:
+      case Type.accessory:
         writer.writeByte(7);
+        break;
+      case Type.money:
+        writer.writeByte(8);
         break;
     }
   }
@@ -190,60 +192,6 @@ class DetailTypeAdapter extends TypeAdapter<Type> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DetailTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class GradeAdapter extends TypeAdapter<Grade> {
-  @override
-  final int typeId = 203;
-
-  @override
-  Grade read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return Grade.normal;
-      case 1:
-        return Grade.uncommon;
-      case 2:
-        return Grade.heroic;
-      case 3:
-        return Grade.legendary;
-      case 4:
-        return Grade.epic;
-      default:
-        return Grade.normal;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, Grade obj) {
-    switch (obj) {
-      case Grade.normal:
-        writer.writeByte(0);
-        break;
-      case Grade.uncommon:
-        writer.writeByte(1);
-        break;
-      case Grade.heroic:
-        writer.writeByte(2);
-        break;
-      case Grade.legendary:
-        writer.writeByte(3);
-        break;
-      case Grade.epic:
-        writer.writeByte(4);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GradeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

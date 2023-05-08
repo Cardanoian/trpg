@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 import 'package:trpg/models/effect.dart';
 import 'package:trpg/models/item.dart';
 import 'package:trpg/models/skills/skill.dart';
+import 'package:trpg/services/analysis.dart';
+import 'package:trpg/services/skill_result.dart';
 
 part 'character.g.dart';
 
@@ -104,6 +106,26 @@ class Character with ChangeNotifier {
   Function getDamage;
   @HiveField(46)
   Function getHp;
+  @HiveField(47)
+  List<Character> heroes;
+  @HiveField(48)
+  List<Character> enemies;
+  @HiveField(49)
+  double timePoint = 1;
+  @HiveField(50)
+  bool _onTurn = false;
+
+  bool get onTurn => _onTurn;
+
+  void turnOn() {
+    _onTurn = true;
+    notifyListeners();
+  }
+
+  void turnOff() {
+    _onTurn = false;
+    notifyListeners();
+  }
 
   Character({
     this.job = "",
@@ -134,49 +156,52 @@ class Character with ChangeNotifier {
     required this.armor,
     required this.accessory,
     required this.skillBook,
+    required this.heroes,
+    required this.enemies,
   }) {
-    renewStat(this);
+    refreshStatus();
     hp = maxHp;
     src = maxSrc;
-    renewStat(this);
+    refreshStatus();
   }
 
-  @HiveField(100)
-  void getEffect(Effect effect, Character me) {
-    for (Effect myEffect in me.effects) {
+  void getEffect(Effect effect) {
+    for (Effect myEffect in effects) {
       if (myEffect.name == effect.name && myEffect.by == effect.by) {
         myEffect.duration = effect.duration;
-        myEffect.barrier = effect.barrier;
         notifyListeners();
         return;
       }
     }
-    me.cStr += effect.strength;
-    me.cDex += effect.dex;
-    me.cInt += effect.intel;
-    me.atBonus += effect.atBonus;
-    me.combat += effect.combat;
-    me.dfBonus += effect.dfBonus;
-    me.diceAdv += effect.diceAdv;
-    me.barrier += effect.barrier;
-    me.effects.add(effect);
+    cStr += effect.strength;
+    cDex += effect.dex;
+    cInt += effect.intel;
+    atBonus += effect.atBonus;
+    combat += effect.combat;
+    dfBonus += effect.dfBonus;
+    diceAdv += effect.diceAdv;
+    effects.add(effect);
     notifyListeners();
   }
 
-  @HiveField(101)
-  void renewStat(Character me) {
+  void refreshStatus() {
     Effect tmpEffect = Effect(
-        by: 'tmp',
-        name: 'tmp',
-        duration: 0,
-        strength: 0,
-        dex: 0,
-        intel: 0,
-        hp: 0,
-        atBonus: 0,
-        combat: 0,
-        dfBonus: 0,
-        diceAdv: 0);
+      by: this,
+      name: 'tmp',
+      duration: 0,
+      strength: 0,
+      dex: 0,
+      intel: 0,
+      hp: 0,
+      atBonus: 0,
+      combat: 0,
+      dfBonus: 0,
+      diceAdv: 0,
+      image: Image.asset(
+        "assets/imgs/effects/seal.png",
+        scale: 0.4,
+      ),
+    );
     for (Effect effect in effects) {
       tmpEffect.strength += effect.strength;
       tmpEffect.dex += effect.dex;
@@ -185,9 +210,12 @@ class Character with ChangeNotifier {
       tmpEffect.combat += effect.combat;
       tmpEffect.dfBonus += effect.dfBonus;
       tmpEffect.diceAdv += effect.diceAdv;
-      if (tmpEffect.addEffect != null) {
-        tmpEffect.addEffect!(me, tmpEffect);
+      if (tmpEffect.hp != 0) {
+        getHp(hp, effect.by, this);
       }
+      // if (tmpEffect.addEffect != null) {
+      //   tmpEffect.addEffect!(tmpEffect);
+      // }
     }
     cStr = bStr +
         weapon.strength +
@@ -197,99 +225,126 @@ class Character with ChangeNotifier {
     cDex = bDex + weapon.dex + armor.dex + accessory.dex + tmpEffect.dex;
     cInt =
         bInt + weapon.intel + armor.intel + accessory.intel + tmpEffect.intel;
+    diceAdv = weapon.diceAdv +
+        armor.diceAdv +
+        accessory.diceAdv +
+        tmpEffect.diceAdv +
+        (job == "도적" ? 1 : 0);
     atBonus =
         weapon.atBonus + armor.atBonus + accessory.atBonus + tmpEffect.atBonus;
-    combat = weapon.combat + armor.combat + accessory.combat + tmpEffect.combat;
+    if (atBonus < 0.1) {
+      atBonus = 0.1;
+    }
     dfBonus =
         weapon.dfBonus + armor.dfBonus + accessory.dfBonus + tmpEffect.dfBonus;
-    diceAdv =
-        weapon.diceAdv + armor.diceAdv + accessory.diceAdv + tmpEffect.diceAdv;
     maxHp = level * 10 + cStr * 5;
+    combat = weapon.combat + armor.combat + accessory.combat + tmpEffect.combat;
     if (hp >= maxHp) {
       hp = maxHp;
     }
     if (job == "마법사" || job == "사제") {
       maxSrc = (level + cInt) * 10;
     }
-    notifyListeners();
-  }
-
-  @HiveField(102)
-  void getExp(int exp, Character me) {
-    double maxExp = pow(10, me.level).toDouble();
-    me.exp += exp;
-    while (me.exp >= maxExp) {
-      me.exp -= maxExp.toInt();
-      me.levelUp(me);
-      maxExp = pow(10, level).toDouble();
+    if (job == "도적") {
+      if (level >= 5) {
+        maxSrc = 120;
+      } else {
+        maxSrc = 100;
+      }
     }
     notifyListeners();
   }
 
-  @HiveField(103)
-  void defaultGetHp(double hp, Character me) {
+  void getExp(int exp) {
+    double maxExp = pow(10, level).toDouble();
+    this.exp += exp;
+    while (this.exp >= maxExp) {
+      this.exp -= maxExp.toInt();
+      levelUp(this);
+      maxExp = pow(10, level).toDouble();
+    }
+    refreshStatus();
+    notifyListeners();
+  }
+
+  void lostExp() {
+    double maxExp = pow(10, level).toDouble();
+    exp -= maxExp * 0.1;
+    while (exp < 0) {
+      level--;
+      bStr -= lvS;
+      bDex -= lvD;
+      bInt -= lvI;
+      maxExp = pow(10, level).toDouble();
+      exp += maxExp;
+    }
+    notifyListeners();
+  }
+
+  void defaultGetHp(double hp, Character by) {
     if (hp == 0) {
       return;
     }
-    me.hp += hp;
-    if (me.hp >= me.maxHp) {
-      me.hp = me.maxHp;
-    } else if (hp <= 0) {
-      me.hp = 0;
-      me.isAlive = false;
-    }
-    notifyListeners();
-  }
-
-  @HiveField(104)
-  void getGold(double gold, Character me) {
-    me.gold += gold;
-    notifyListeners();
-  }
-
-  @HiveField(105)
-  void getItem(Item item, Character me) {
-    for (Item myItem in me.inventory) {
-      if (item.name == myItem.name) {
-        myItem.quantity += 1;
-        notifyListeners();
-        return;
+    if (hp > 0) {
+      if (maxHp - this.hp < hp) {
+        AnalysisMap.add(by, this, maxHp - this.hp);
+      } else {
+        AnalysisMap.add(by, this, hp);
+      }
+    } else {
+      if (hp > this.hp) {
+        AnalysisMap.add(by, this, this.hp);
+      } else {
+        AnalysisMap.add(by, this, hp);
       }
     }
-    me.inventory.add(item);
+    this.hp += hp;
+    if (this.hp >= maxHp) {
+      this.hp = maxHp;
+    } else if (this.hp <= 0) {
+      this.hp = 0;
+      isAlive = false;
+    }
     notifyListeners();
   }
 
-  @HiveField(106)
-  void wearItem(Item item, Character me) {
+  void getGold(double gold) {
+    this.gold += gold;
+    notifyListeners();
+  }
+
+  void getItem(Item item) {
+    inventory.add(item);
+    notifyListeners();
+  }
+
+  void wearItem(Item item) {
     if (item.itemType == ItemType.weapon) {
-      if (item.type == me.weaponType) {
-        me.getItem(weapon, me);
-        me.weapon = item;
+      if (item.type == weaponType) {
+        getItem(weapon);
+        weapon = item;
       }
     } else if (item.itemType == ItemType.armor) {
-      if (item.type == me.armorType) {
-        me.getItem(armor, me);
-        me.armor = item;
+      if (item.type == armorType) {
+        getItem(armor);
+        armor = item;
       }
     } else if (item.itemType == ItemType.accessory) {
-      me.getItem(accessory, me);
-      me.accessory = item;
+      getItem(accessory);
+      accessory = item;
     }
     notifyListeners();
   }
 
-  @HiveField(107)
-  double calcWealth(Character me) {
-    double wealth = me.gold;
+  double calcWealth() {
+    double wealth = gold;
 
-    for (Item item in me.inventory) {
+    for (Item item in inventory) {
       wealth += item.cost * item.quantity;
     }
     return wealth;
   }
 
-  @HiveField(108)
   int actionDice() {
     int randNum = Random().nextInt(36);
     return randNum == 35
@@ -315,9 +370,8 @@ class Character with ChangeNotifier {
                                             : 2;
   }
 
-  @HiveField(109)
-  int actionSuccess(Character me) {
-    double dice = actionDice() + me.diceAdv;
+  int actionSuccess() {
+    double dice = actionDice() + diceAdv;
     if (dice >= 11) {
       return 4;
     } else if (dice >= 8) {
@@ -329,66 +383,69 @@ class Character with ChangeNotifier {
     }
   }
 
-  @HiveField(110)
-  bool useSrc(int src, Character me) {
-    if (me.src + src < 0) {
+  bool useSrc(int src) {
+    if (this.src + src < 0) {
       return false;
     }
-    me.src += src;
-    me.src = me.src >= me.maxSrc ? me.maxSrc : me.src;
+    this.src += src;
+    this.src = this.src >= maxSrc ? maxSrc : this.src;
     notifyListeners();
     return true;
   }
 
-  @HiveField(111)
-  double getSpellPower(Character me) {
-    return (me.cInt + me.combat) * me.actionSuccess(me) / 2;
+  double getSpellPower(int action) {
+    return (cInt + combat) * action / 2;
   }
 
-  @HiveField(112)
   static void baseLevelUp(Character me) {
     me.level++;
     me.bStr += me.lvS;
     me.bDex += me.lvD;
     me.bInt += me.lvI;
-    me.renewStat(me);
+    me.refreshStatus();
   }
 
-  @HiveField(113)
   static void baseTurnStart(Character me) {
+    me.timePoint += 1;
+    me.refreshStatus();
     List<Effect> tmpEffects = <Effect>[];
     for (Effect effect in me.effects) {
       effect.duration -= 1;
-      if (effect.duration >= 0) {
+      if (effect.duration > 0) {
         tmpEffects.add(effect);
       }
-      me.getHp(effect.hp, me);
+      me.getHp(effect.hp, effect.by, me);
     }
     me.effects = tmpEffects;
-    me.renewStat(me);
-    me.blowAvailable += 1;
+    me.blowAvailable += me.job == "도적"
+        ? 2
+        : me.job == "마법사" || me.job == "사제"
+            ? 0
+            : 1;
+    me.turnOn();
   }
 
-  @HiveField(114)
   static double baseGetDamage(
       Character target, double stat, int action, Character me) {
     double defend = target.dfBonus <= 0 ? 1 / 2 : target.dfBonus;
     return -1 * me.weapon.atBonus * stat * action / defend / 2;
   }
 
-  @HiveField(115)
-  static bool baseBlow(List<Character> targets, double damage, Character me) {
-    targets[0].getHp(damage, targets[0]);
-    return true;
+  static SkillResult baseBlow(
+      List<Character> targets, double damage, Character me) {
+    targets[0].getHp(damage, targets[0], me);
+    SkillResult result = SkillResult(by: me, to: targets[0]);
+    result.hp = damage;
+    return result;
   }
 
-  @HiveField(116)
-  static void baseGetHp(double hp, Character me) {
-    me.defaultGetHp(hp, me);
+  static void baseGetHp(double hp, Character by, Character me) {
+    return me.defaultGetHp(hp, by);
   }
 
-  @HiveField(117)
-  static void baseBattleStart(Character me) {}
+  static void baseBattleStart(Character me) {
+    me.refreshStatus();
+  }
 // void showTestInfo() {}
 //
 // void test(List<Character> targets, Character me) {

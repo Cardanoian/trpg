@@ -17,8 +17,6 @@ class EffectAdapter extends TypeAdapter<Effect> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Effect(
-      by: fields[0] as String?,
-      name: fields[1] as String,
       barrier: fields[13] as double,
       duration: fields[2] as int,
       strength: fields[3] as double,
@@ -31,13 +29,16 @@ class EffectAdapter extends TypeAdapter<Effect> {
       diceAdv: fields[10] as double,
       buff: fields[11] as bool,
       addEffect: fields[12] as Function?,
+      by: fields[0] as Character?,
+      name: fields[1] as String,
+      image: fields[14] as Image,
     );
   }
 
   @override
   void write(BinaryWriter writer, Effect obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.by)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class EffectAdapter extends TypeAdapter<Effect> {
       ..writeByte(12)
       ..write(obj.addEffect)
       ..writeByte(13)
-      ..write(obj.barrier);
+      ..write(obj.barrier)
+      ..writeByte(14)
+      ..write(obj.image);
   }
 
   @override

@@ -45,6 +45,8 @@ class CharacterAdapter extends TypeAdapter<Character> {
       armor: fields[30] as Item,
       accessory: fields[31] as Item,
       skillBook: (fields[18] as List).cast<Skill>(),
+      heroes: (fields[47] as List).cast<Character>(),
+      enemies: (fields[48] as List).cast<Character>(),
     )
       ..atBonus = fields[13] as double
       ..dfBonus = fields[14] as double
@@ -64,13 +66,14 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..aggro = (fields[38] as Map).cast<Character, double>()
       ..barrier = fields[39] as double
       ..tripleDamage = fields[40] as bool
-      ..lastSource = fields[41] as String;
+      ..lastSource = fields[41] as String
+      ..timePoint = fields[49] as double;
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(47)
+      ..writeByte(50)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -164,7 +167,13 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(45)
       ..write(obj.getDamage)
       ..writeByte(46)
-      ..write(obj.getHp);
+      ..write(obj.getHp)
+      ..writeByte(47)
+      ..write(obj.heroes)
+      ..writeByte(48)
+      ..write(obj.enemies)
+      ..writeByte(49)
+      ..write(obj.timePoint);
   }
 
   @override

@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character warrior(String name) => Character(
+Character warrior(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       name: name,
       job: "전사",
       srcName: "분노",
@@ -41,6 +46,8 @@ Character warrior(String name) => Character(
         Skill(name: "평타", turn: 0.5, func: Character.baseBlow),
         Skill(name: "도발", turn: 0, func: JobSkills.provocation),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 // Skills

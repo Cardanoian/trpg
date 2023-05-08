@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/characters/jobs/archer.dart';
 import 'package:trpg/models/characters/jobs/paladin.dart';
@@ -6,18 +7,15 @@ import 'package:trpg/models/characters/jobs/priest.dart';
 import 'package:trpg/models/characters/jobs/rogue.dart';
 import 'package:trpg/models/characters/jobs/warrior.dart';
 import 'package:trpg/models/characters/jobs/wizard.dart';
+import 'package:trpg/services/game_data.dart';
 import 'package:trpg/services/hive_repository.dart';
 import 'package:trpg/services/saveDataToMap.dart';
 import 'package:trpg/services/save_data.dart';
+import 'package:trpg/services/save_data_list.dart';
 
 class NewDataScreen extends StatefulWidget {
-  final String title;
-  final int index;
-
   const NewDataScreen({
     Key? key,
-    this.title = "TRPG",
-    required this.index,
   }) : super(key: key);
 
   @override
@@ -64,7 +62,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(context.watch<GameData>().title),
         actions: [
           IconButton(
             tooltip: "저장",
@@ -83,7 +81,11 @@ class _NewDataScreenState extends State<NewDataScreen> {
                 hero.hp = hero.maxHp;
                 hero.src = hero.maxSrc;
               }
-              HiveRepository.put("${widget.index}", saveDataToMap(newData));
+              HiveRepository.put("${context.watch<GameData>().playIndex}",
+                  saveDataToMap(newData));
+              context
+                  .read<SaveDataList>()
+                  .changeSaveData(newData, context.watch<GameData>().playIndex);
             },
             icon: const Icon(Icons.save_rounded),
           ),
@@ -108,7 +110,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
                 const SizedBox(height: 10),
                 jobSelectingWidget(),
                 const SizedBox(height: 10),
-                addHeroButton(),
+                addHeroButton(context),
               ],
             ),
             Expanded(child: HeroesListWidget(heroes: newData.heroes)),
@@ -118,7 +120,7 @@ class _NewDataScreenState extends State<NewDataScreen> {
     );
   }
 
-  ElevatedButton addHeroButton() {
+  ElevatedButton addHeroButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
         if (newData.heroes.length > 5) return;
@@ -127,6 +129,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               warrior(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;
@@ -134,6 +144,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               paladin(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;
@@ -141,6 +159,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               rogue(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;
@@ -148,6 +174,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               archer(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;
@@ -155,6 +189,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               wizard(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;
@@ -162,6 +204,14 @@ class _NewDataScreenState extends State<NewDataScreen> {
             newData.addHero(
               priest(
                 selectedName,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .heroes,
+                context
+                    .watch<SaveDataList>()
+                    .saveDataList[context.watch<GameData>().playIndex]!
+                    .enemies,
               ),
             );
             break;

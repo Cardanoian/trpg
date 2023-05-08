@@ -1,16 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:trpg/models/characters/character.dart';
 
-part 'save_data.g.dart';
-
-@HiveType(typeId: 105)
 class SaveData with ChangeNotifier {
-  @HiveField(0)
   List<Character> heroes;
-  @HiveField(1)
   List<Character> enemies;
-  @HiveField(2)
   DateTime lastPlayTime;
 
   void addHero(Character hero) {

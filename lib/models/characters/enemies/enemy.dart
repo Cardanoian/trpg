@@ -10,6 +10,8 @@ Character enemy({
   String name = "",
   String job = "Enemy",
   int level = 1,
+  required List<Character> heroes,
+  required List<Character> enemies,
   required List<Skill> skillBook,
 }) =>
     Character(
@@ -29,6 +31,8 @@ Character enemy({
       armor: baseLeather,
       accessory: baseAccessory,
       skillBook: skillBook,
+      heroes: heroes,
+      enemies: enemies,
     );
 
 // class Goblin extends Character {

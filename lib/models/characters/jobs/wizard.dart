@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character wizard(String name) => Character(
+Character wizard(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       name: name,
       job: "마법사",
       bStr: 3,
@@ -12,7 +17,7 @@ Character wizard(String name) => Character(
       bInt: 13,
       lvS: 1,
       lvI: 3,
-      levelUp: JobSkills.wizardLevelUp,
+      levelUp: Character.baseLevelUp,
       battleStart: JobSkills.wizardBattleStart,
       turnStart: Character.baseTurnStart,
       getDamage: JobSkills.wizardGetDamage,
@@ -45,6 +50,8 @@ Character wizard(String name) => Character(
         Skill(name: "화염구", turn: 0.5, func: Magics.fireBall, src: "화염, 3소모"),
         Skill(name: "화염 기둥", turn: 1, func: Magics.flameStrike, src: "화염, 5소모"),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 //

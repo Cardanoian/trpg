@@ -1,57 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:trpg/models/characters/character.dart';
 import 'package:trpg/models/item.dart';
 
-class ItemCard extends StatefulWidget {
-  final Item item;
-
-  const ItemCard({
-    super.key,
-    required this.item,
-  });
-
-  @override
-  State<ItemCard> createState() => _ItemCardState();
-}
-
-class _ItemCardState extends State<ItemCard> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+Container itemCard({
+  required Item item,
+  required BuildContext context,
+  required Character character,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      border: Border.all(width: 1),
+      borderRadius: BorderRadius.circular(5),
+      color: itemColor(item),
+    ),
+    width: 350,
+    child: Column(
       children: [
-        Image.asset("assets/images/item.png"),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                Text("이름: ${widget.item.name}"),
-                Text("타입: ${widget.item.itemType}"),
-                Text("가격: ${widget.item.cost}"),
-                Text("수량: ${widget.item.quantity}"),
-              ],
+        Text(item.toString()),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.greenAccent.withOpacity(0.8),
+            foregroundColor: Colors.deepPurple.withOpacity(0.8),
+            elevation: 5,
+          ),
+          onPressed: () {
+            character.wearItem(item);
+          },
+          child: const Text(
+            "착용",
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w600,
             ),
-            Row(
-              children: [
-                Text(
-                    "등급: ${widget.item.grade == Grade.normal ? "일반급" : widget.item.grade == Grade.uncommon ? "희귀급" : widget.item.grade == Grade.heroic ? "영웅급" : widget.item.grade == Grade.legendary ? "전설급" : "마왕급"}"),
-                Text("공격력: ${widget.item.atBonus}"),
-                Text("방어력: ${widget.item.dfBonus}"),
-                Text("전투력: ${widget.item.combat}"),
-              ],
-            ),
-            Row(
-              children: [
-                Text("힘: ${widget.item.strength}"),
-                Text("민첩: ${widget.item.dex}"),
-                Text("지능: ${widget.item.intel}"),
-                Text("주사위 보너스: ${widget.item.diceAdv}"),
-              ],
-            ),
-          ],
+          ),
         ),
       ],
-    );
-  }
+    ),
+  );
 }

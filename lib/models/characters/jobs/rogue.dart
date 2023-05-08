@@ -4,7 +4,12 @@ import 'package:trpg/models/skills/job_skills.dart';
 import 'package:trpg/models/skills/magics.dart';
 import 'package:trpg/models/skills/skill.dart';
 
-Character rogue(String name) => Character(
+Character rogue(
+  String name,
+  List<Character> heroes,
+  List<Character> enemies,
+) =>
+    Character(
       name: name,
       job: "도적",
       srcName: "기력",
@@ -14,7 +19,7 @@ Character rogue(String name) => Character(
       bInt: 2,
       lvS: 1,
       lvD: 3,
-      levelUp: JobSkills.rogueLevelUp,
+      levelUp: Character.baseLevelUp,
       battleStart: JobSkills.rogueBattleStart,
       turnStart: JobSkills.rogueTurnStart,
       getDamage: Character.baseGetDamage,
@@ -43,6 +48,8 @@ Character rogue(String name) => Character(
             name: "칼날부채", turn: 0.5, func: Magics.fanOfKnife, src: "연계 모두 소모"),
         Skill(name: "평타", turn: 0.5, func: JobSkills.rogueBlow),
       ],
+      heroes: heroes,
+      enemies: enemies,
     );
 
 // class Rogue extends Character {
